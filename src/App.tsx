@@ -1,35 +1,60 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
+import React from "react";
+import "./App.scss";
+import SearchForm from "./components/SearchForm/SearchForm";
+import List from "./components/ListBlock/ListBlock";
+import { Card } from "./components/ListItem/ListItem";
 
-function App() {
-  const [count, setCount] = useState(0);
+type TAppProps = {
+  url: string;
+};
+type TAppState = {
+  cardsList: Card[];
+};
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+class App extends React.Component<TAppProps, TAppState> {
+  constructor(props: TAppProps) {
+    super(props);
+    this.state = {
+      cardsList: [],
+    };
+  }
+
+  fetchData = async (param: string) => {
+    const { url } = this.props;
+    try {
+      const response = await fetch(`${url}/${param}`, {
+        method: "GET",
+      });
+      const fetchedCardsList: Card[] = await response.json();
+      console.log(fetchedCardsList);
+      this.setState({ cardsList: [...fetchedCardsList] });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  handleSubmit = (query?: string) => {
+    const userQuery = query?.trim().replace(/\s/, "");
+    if (userQuery) {
+      this.fetchData(userQuery);
+    } else {
+      this.fetchData("?page=1");
+    }
+  };
+
+  render() {
+    return (
+      <div className="page">
+        <main className="page__main main">
+          <div className="main__input-block">
+            <SearchForm onQuerySubmit={this.handleSubmit} />
+          </div>
+          <div className="main__list">
+            <List />
+          </div>
+        </main>
       </div>
-      <h1> Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  );
+    );
+  }
 }
-
 export default App;

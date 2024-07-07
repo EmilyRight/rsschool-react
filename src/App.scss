@@ -1,0 +1,22 @@
+.page {
+  background-color: #336f4196;
+  width: 100%;
+  height: 100%;
+  padding-top: 8rem;
+}
+
+.main {
+  display: flex;
+  max-width: 80%;
+  margin: 0 auto;
+  flex-direction: column;
+  align-items: center;
+  &__input-block {
+    width: 80%;
+    @media (min-width: 780px) {
+      width: 50%;
+    }
+  }
+  &__list {
+  }
+}

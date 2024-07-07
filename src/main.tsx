@@ -5,6 +5,6 @@ import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <App />
+    <App url="https://rickandmortyapi.com/api/character/"/>
   </React.StrictMode>,
 );
