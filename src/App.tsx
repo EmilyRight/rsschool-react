@@ -46,7 +46,7 @@ class App extends React.Component<TAppProps, TAppState> {
 
   handleSubmit = (query?: string) => {
     const userQuery = query?.trim().replace(/\s/, "");
-    if (userQuery) {
+    if (userQuery && userQuery.match(/^[1-9]$/)) {
       this.fetchData(userQuery);
     } else {
       this.fetchData(pageParam);

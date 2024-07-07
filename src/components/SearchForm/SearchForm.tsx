@@ -34,11 +34,14 @@ class SearchForm extends React.Component<TSearchFormProps, TSearchFormState> {
 
   handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const regex = /^[1-9]$/;
     const { query } = this.state;
     const { onQuerySubmit } = this.props;
-    localStorage.setItem("person", `${query}`);
-    this.setState({ query: "" });
-    onQuerySubmit(query);
+    if (regex.test(query)) {
+      localStorage.setItem("person", `${query}`);
+      onQuerySubmit(query);
+      this.setState({ query: "" });
+    }
   };
 
   render() {
