@@ -3,7 +3,8 @@ import "./App.scss";
 import SearchForm from "./components/SearchForm/SearchForm";
 import List from "./components/ListBlock/ListBlock";
 import { Card } from "./components/ListItem/ListItem";
-
+import { TFetchedCard } from "./types/types";
+const pageParam = "?page=1";
 type TAppProps = {
   url: string;
 };
@@ -25,9 +26,12 @@ class App extends React.Component<TAppProps, TAppState> {
       const response = await fetch(`${url}/${param}`, {
         method: "GET",
       });
-      const fetchedCardsList: Card[] = await response.json();
-      console.log(fetchedCardsList);
-      this.setState({ cardsList: [...fetchedCardsList] });
+      if (param === pageParam) {
+        const fetchedCards: TFetchedCard = await response.json();
+        const cardsArray = [...fetchedCards.results];
+        console.log(cardsArray);
+        this.setState({ cardsList: [...cardsArray] });
+      }
     } catch (error) {
       console.log(error);
     }
