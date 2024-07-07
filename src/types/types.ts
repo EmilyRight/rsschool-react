@@ -32,5 +32,21 @@ type TInfo = {
 
 export type TFetchedCard = {
   info: TInfo;
-  results: TFetchedCardResults;
+  results: TFetchedCardResults[];
+};
+
+export type TCardProps = {
+  id: number;
+  name: string;
+  species: string;
+  gender: string;
+  image: string;
+};
+
+export type Card = {
+  id: number;
+  name: string;
+  species: string;
+  gender: string;
+  image: string;
 };

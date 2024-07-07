@@ -2,8 +2,7 @@ import React from "react";
 import "./App.scss";
 import SearchForm from "./components/SearchForm/SearchForm";
 import List from "./components/ListBlock/ListBlock";
-import { Card } from "./components/ListItem/ListItem";
-import { TFetchedCard } from "./types/types";
+import { Card, TFetchedCard, TFetchedCardResults } from "./types/types";
 const pageParam = "?page=1";
 type TAppProps = {
   url: string;
@@ -28,9 +27,17 @@ class App extends React.Component<TAppProps, TAppState> {
       });
       if (param === pageParam) {
         const fetchedCards: TFetchedCard = await response.json();
-        const cardsArray = [...fetchedCards.results];
-        console.log(cardsArray);
+        const cardsArray = fetchedCards.results;
+        cardsArray.map(({ id, name, species, image, gender }) => {
+          return { id, name, species, image, gender };
+        });
         this.setState({ cardsList: [...cardsArray] });
+      } else {
+        const fetchedCards: TFetchedCardResults = await response.json();
+        [fetchedCards].map(({ id, name, species, image, gender }) => {
+          return { id, name, species, image, gender };
+        });
+        this.setState({ cardsList: [fetchedCards] });
       }
     } catch (error) {
       console.log(error);
@@ -42,7 +49,7 @@ class App extends React.Component<TAppProps, TAppState> {
     if (userQuery) {
       this.fetchData(userQuery);
     } else {
-      this.fetchData("?page=1");
+      this.fetchData(pageParam);
     }
   };
 
@@ -54,7 +61,7 @@ class App extends React.Component<TAppProps, TAppState> {
             <SearchForm onQuerySubmit={this.handleSubmit} />
           </div>
           <div className="main__list">
-            <List />
+            <List cards={this.state.cardsList} />
           </div>
         </main>
       </div>

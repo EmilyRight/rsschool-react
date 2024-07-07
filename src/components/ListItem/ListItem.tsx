@@ -1,21 +1,8 @@
 import React, { Component } from "react";
 import "./list-item.scss";
+import { TCardProps } from "../../types/types";
 
-export type TCardProps = {
-  id: number;
-  name: string;
-  species: string;
-  gender: string;
-  image: string;
-};
 
-export type Card = {
-  id: number;
-  name: string;
-  species: string;
-  gender: string;
-  image: string;
-};
 
 export class PersonCard extends Component<TCardProps> {
   constructor(props: TCardProps) {

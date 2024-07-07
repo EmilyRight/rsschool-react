@@ -13,7 +13,7 @@ class SearchForm extends React.Component<TSearchFormProps, TSearchFormState> {
   constructor(props: TSearchFormProps) {
     super(props);
     this.state = {
-      query: "",
+      query: localStorage.getItem("person") || "",
     };
   }
   componentDidMount(): void {
@@ -21,14 +21,9 @@ class SearchForm extends React.Component<TSearchFormProps, TSearchFormState> {
   }
 
   setInitialQuery() {
-    console.log("hey");
     const { query } = this.state;
     const { onQuerySubmit } = this.props;
-    const cashedQuery = localStorage.getItem("person");
-    if (cashedQuery) {
-      this.setState({ query: cashedQuery });
-      onQuerySubmit(query);
-    }
+    onQuerySubmit(query);
   }
 
   handleInput = (event: ChangeEvent<HTMLInputElement>) => {
