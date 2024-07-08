@@ -16,15 +16,6 @@ class SearchForm extends React.Component<TSearchFormProps, TSearchFormState> {
       query: '',
     };
   }
-  // componentDidMount(): void {
-  //   this.setInitialQuery();
-  // }
-
-  // setInitialQuery() {
-  //   const { query } = this.state;
-  //   const { onQuerySubmit } = this.props;
-  //   onQuerySubmit(query);
-  // }
 
   handleInput = (event: ChangeEvent<HTMLInputElement>) => {
     const element = event.target as HTMLInputElement;

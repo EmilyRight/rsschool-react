@@ -21,7 +21,6 @@ export type TFetchedCardResults = {
   created: string;
 };
 
-
 export type TFetchedCard = {
   info: {
     count: number;
