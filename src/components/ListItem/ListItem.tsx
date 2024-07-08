@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import "./list-item.scss";
 import { TCardProps } from "../../types/types";
 

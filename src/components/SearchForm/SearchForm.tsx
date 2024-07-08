@@ -34,7 +34,7 @@ class SearchForm extends React.Component<TSearchFormProps, TSearchFormState> {
 
   handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const regex = /^[1-9]$/;
+    const regex = /^(1[0-9]|20|[1-9])$/;
     const { query } = this.state;
     const { onQuerySubmit } = this.props;
     if (regex.test(query)) {
@@ -53,7 +53,7 @@ class SearchForm extends React.Component<TSearchFormProps, TSearchFormState> {
           <input
             type="text"
             className="input-block__input"
-            placeholder="Enter person name"
+            placeholder="Enter number from 1 to 20"
             value={query}
             name="query"
             onChange={this.handleInput}
