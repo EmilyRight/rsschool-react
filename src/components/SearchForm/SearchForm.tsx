@@ -1,5 +1,5 @@
-import React, { ChangeEvent, FormEvent } from "react";
-import "./search-form.scss";
+import React, { ChangeEvent, FormEvent } from 'react';
+import './search-form.scss';
 
 type TSearchFormProps = {
   onQuerySubmit: (query: string) => void;
@@ -13,18 +13,18 @@ class SearchForm extends React.Component<TSearchFormProps, TSearchFormState> {
   constructor(props: TSearchFormProps) {
     super(props);
     this.state = {
-      query: localStorage.getItem("person") || "",
+      query: '',
     };
   }
-  componentDidMount(): void {
-    this.setInitialQuery();
-  }
+  // componentDidMount(): void {
+  //   this.setInitialQuery();
+  // }
 
-  setInitialQuery() {
-    const { query } = this.state;
-    const { onQuerySubmit } = this.props;
-    onQuerySubmit(query);
-  }
+  // setInitialQuery() {
+  //   const { query } = this.state;
+  //   const { onQuerySubmit } = this.props;
+  //   onQuerySubmit(query);
+  // }
 
   handleInput = (event: ChangeEvent<HTMLInputElement>) => {
     const element = event.target as HTMLInputElement;
@@ -34,14 +34,9 @@ class SearchForm extends React.Component<TSearchFormProps, TSearchFormState> {
 
   handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const regex = /^(1[0-9]|20|[1-9])$/;
     const { query } = this.state;
     const { onQuerySubmit } = this.props;
-    if (regex.test(query)) {
-      localStorage.setItem("person", `${query}`);
-      onQuerySubmit(query);
-      this.setState({ query: "" });
-    }
+    onQuerySubmit(query);
   };
 
   render() {
