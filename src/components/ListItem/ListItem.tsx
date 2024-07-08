@@ -1,8 +1,6 @@
-import { Component } from "react";
-import "./list-item.scss";
-import { TCardProps } from "../../types/types";
-
-
+import { Component } from 'react';
+import './list-item.scss';
+import { TCardProps } from '../../types/types';
 
 export class PersonCard extends Component<TCardProps> {
   constructor(props: TCardProps) {
