@@ -48,7 +48,7 @@ class SearchForm extends React.Component<TSearchFormProps, TSearchFormState> {
           <input
             type="text"
             className="input-block__input"
-            placeholder="Enter number from 1 to 20"
+            placeholder="Enter number from 1 to 826"
             value={query}
             name="query"
             onChange={this.handleInput}

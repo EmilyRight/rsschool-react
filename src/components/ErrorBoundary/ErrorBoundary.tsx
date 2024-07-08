@@ -1,36 +1,31 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
+type TErrorBoundaryProps = {
+  children: ReactNode;
+};
 
 type TErrorBoundaryState = {
   hasError: boolean;
 };
 
-type TErrorBoundaryProps = {
-  fallback: string;
-  children: React.ReactNode | React.ReactNode[];
-};
-
-class ErrorBoundary extends React.Component<TErrorBoundaryProps, TErrorBoundaryState> {
+export class ErrorBoundary extends React.Component<TErrorBoundaryProps, TErrorBoundaryState> {
   constructor(props: TErrorBoundaryProps) {
     super(props);
-    this.state = { hasError: false};
+    this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: Error) {
+  static getDerivedStateFromError(): TErrorBoundaryState {
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Ошибка поймана в Error Boundary:', error);
-    console.error('Информация об ошибке:', errorInfo);
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+    console.error('Error Boundary caught an error', error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
-      return this.props.fallback;
+      return <h1>Something went wrong...</h1>;
     }
 
     return this.props.children;
   }
 }
-
-export default ErrorBoundary;

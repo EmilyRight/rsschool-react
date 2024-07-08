@@ -1,10 +1,10 @@
-import React from "react";
+import React from 'react';
 
-import "./list-block.scss";
-import { Card } from "../../types/types";
-import { PersonCard } from "../ListItem/ListItem";
+import './list-block.scss';
+import { TFetchedCardResults } from '../../types/types';
+import { PersonCard } from '../ListItem/ListItem';
 type TListProps = {
-  cards: Card[];
+  cards: TFetchedCardResults[] | null;
 };
 
 class List extends React.Component<TListProps> {
@@ -12,7 +12,7 @@ class List extends React.Component<TListProps> {
     const { cards } = this.props;
     return (
       <div className="list-block list">
-        {cards.map(({ id, name, image, species, gender }) => (
+        {cards?.map(({ id, name, image, species, gender }) => (
           <PersonCard
             key={id}
             id={id}
