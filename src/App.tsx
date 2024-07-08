@@ -3,7 +3,9 @@ import "./App.scss";
 import SearchForm from "./components/SearchForm/SearchForm";
 import List from "./components/ListBlock/ListBlock";
 import { Card, TFetchedCard, TFetchedCardResults } from "./types/types";
+
 const pageParam = "?page=1";
+
 type TAppProps = {
   url: string;
 };
