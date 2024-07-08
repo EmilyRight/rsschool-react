@@ -21,17 +21,14 @@ export type TFetchedCardResults = {
   created: string;
 };
 
-type TInfo = {
+
+export type TFetchedCard = {
   info: {
     count: number;
     pages: number;
     next: string;
     prev: null;
   };
-};
-
-export type TFetchedCard = {
-  info: TInfo;
   results: TFetchedCardResults[];
 };
 
