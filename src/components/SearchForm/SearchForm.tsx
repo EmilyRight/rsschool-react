@@ -13,7 +13,7 @@ class SearchForm extends React.Component<TSearchFormProps, TSearchFormState> {
   constructor(props: TSearchFormProps) {
     super(props);
     this.state = {
-      query: '',
+      query: localStorage.getItem('person') || '',
     };
   }
 
@@ -29,7 +29,6 @@ class SearchForm extends React.Component<TSearchFormProps, TSearchFormState> {
     const { onQuerySubmit } = this.props;
     localStorage.setItem('person', query);
     onQuerySubmit(query);
-    this.setState({ query: '' });
   };
 
   render() {
