@@ -1,5 +1,5 @@
-import React, { ChangeEvent, FormEvent } from "react";
-import "./search-form.scss";
+import React, { ChangeEvent, FormEvent } from 'react';
+import './search-form.scss';
 
 type TSearchFormProps = {
   onQuerySubmit: (query: string) => void;
@@ -13,22 +13,8 @@ class SearchForm extends React.Component<TSearchFormProps, TSearchFormState> {
   constructor(props: TSearchFormProps) {
     super(props);
     this.state = {
-      query: "",
+      query: localStorage.getItem('person') || '',
     };
-  }
-  componentDidMount(): void {
-    this.setInitialQuery();
-  }
-
-  setInitialQuery() {
-    console.log("hey");
-    const { query } = this.state;
-    const { onQuerySubmit } = this.props;
-    const cashedQuery = localStorage.getItem("person");
-    if (cashedQuery) {
-      this.setState({ query: cashedQuery });
-      onQuerySubmit(query);
-    }
   }
 
   handleInput = (event: ChangeEvent<HTMLInputElement>) => {
@@ -41,8 +27,7 @@ class SearchForm extends React.Component<TSearchFormProps, TSearchFormState> {
     event.preventDefault();
     const { query } = this.state;
     const { onQuerySubmit } = this.props;
-    localStorage.setItem("person", `${query}`);
-    this.setState({ query: "" });
+    localStorage.setItem('person', query);
     onQuerySubmit(query);
   };
 
@@ -55,7 +40,7 @@ class SearchForm extends React.Component<TSearchFormProps, TSearchFormState> {
           <input
             type="text"
             className="input-block__input"
-            placeholder="Enter person name"
+            placeholder="Enter number from 1 to 826"
             value={query}
             name="query"
             onChange={this.handleInput}

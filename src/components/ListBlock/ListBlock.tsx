@@ -1,45 +1,28 @@
-import React from "react";
-import { PersonCard } from "../ListItem/ListItem";
-import "./list-block.scss";
-type TSearchFormProps = {
-  query: string;
+import React from 'react';
+
+import './list-block.scss';
+import { TFetchedCardResults } from '../../types/types';
+import { PersonCard } from '../ListItem/ListItem';
+type TListProps = {
+  cards: TFetchedCardResults[] | null;
 };
 
-class List extends React.Component {
-  constructor(props: TSearchFormProps) {
-    super(props);
-    this.state = {
-      query: "",
-    };
-  }
-
+class List extends React.Component<TListProps> {
   render() {
+    const { cards } = this.props;
     return (
-      <>
-        <div className="list-block list">
+      <div className="list-block list">
+        {cards?.map(({ id, name, image, species, gender }) => (
           <PersonCard
-            id={1}
-            name={"Rick Sanchez"}
-            species={"Human"}
-            gender={"Male"}
-            image={"https://rickandmortyapi.com/api/character/avatar/1.jpeg"}
+            key={id}
+            id={id}
+            name={name}
+            image={image}
+            species={species}
+            gender={gender}
           />
-          <PersonCard
-            id={1}
-            name={"Rick Sanchez"}
-            species={"Human"}
-            gender={"Male"}
-            image={"https://rickandmortyapi.com/api/character/avatar/1.jpeg"}
-          />
-          <PersonCard
-            id={1}
-            name={"Rick Sanchez"}
-            species={"Human"}
-            gender={"Male"}
-            image={"https://rickandmortyapi.com/api/character/avatar/1.jpeg"}
-          />
-        </div>
-      </>
+        ))}
+      </div>
     );
   }
 }
