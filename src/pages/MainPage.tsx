@@ -1,85 +1,88 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import './main-page.scss';
 import SearchForm from '../components/SearchForm/SearchForm';
 import List from '../components/ListBlock/ListBlock';
 import { TFetchedCardResults } from '../types/types';
 import Loader from '../components/Loader/Loader';
 import { fetchItems } from '../api/api';
+import mockData from '../mock/mockData.ts';
 
 const pageParam = '?page=1';
 
 type TMainPageState = {
   cardsList: TFetchedCardResults[] | null;
-  localQuery: string;
   hasError: boolean;
   isLoading: boolean;
 };
+function MainPage() {
+  const [state, setState] = useState<TMainPageState>({
+    cardsList: [],
+    hasError: false,
+    isLoading: false,
+  });
+  const localQuery = localStorage.getItem('person') || '';
+  // componentDidMount(): void {
+  //   this.handleFetch(this.state.localQuery);
+  // }
 
-class MainPage extends React.Component<Record<string, never>, TMainPageState> {
-  constructor(props: Record<string, never>) {
-    super(props);
-    this.state = {
-      cardsList: null,
-      localQuery: localStorage.getItem('person') || '',
-      hasError: false,
-      isLoading: false,
-    };
-  }
-
-  componentDidMount(): void {
-    this.handleFetch(this.state.localQuery);
-  }
-
-  handleFetch = async (param: string | undefined) => {
-    this.setState({ isLoading: true });
+  const handleFetch = async (param: string | undefined) => {
+    setState({ ...state, isLoading: true });
 
     try {
-      const result = await fetchItems(param);
-      let data: TFetchedCardResults[];
-      if (param) {
-        data = [result];
-      } else {
-        data = result.results;
-      }
-      this.setState({ cardsList: data, isLoading: false });
+      // const result = await fetchItems(param);
+      // const result = mockData;
+      // let data: TFetchedCardResults[];
+      // console.log('====================================');
+      // console.log(result);
+      // console.log('====================================');
+      // if (param) {
+      //   data = [...result];
+      // }
+
+      const { results } = mockData;
+      // else {
+      //   data = result.results;
+      // }
+      setState({ ...state, cardsList: results, isLoading: false });
     } catch (error) {
-      this.setState({ hasError: true, isLoading: false });
+      setState({ ...state, hasError: true, isLoading: false });
       console.log(error);
     }
   };
 
-  handleSubmit = (query?: string | undefined) => {
+  const handleSubmit = (query?: string | undefined) => {
     const userQuery = query?.trim().replace(/\s/, '');
     if (userQuery === '') {
-      this.handleFetch(pageParam);
+      handleFetch(pageParam);
     }
 
-    this.handleFetch(userQuery);
+    handleFetch(userQuery);
   };
 
-  throwErrorFunction = () => {
-    this.setState({ hasError: true, isLoading: false });
+  const throwErrorFunction = () => {
+    setState({ ...state, hasError: true, isLoading: false });
   };
 
-  render() {
-    const { isLoading, hasError } = this.state;
-    if (hasError) {
-      throw new Error('Test error');
+  useEffect(() => {
+    if (state.hasError) {
+      throw new Error('test error');
     }
 
-    return (
-      <main className="page__main main">
-        <button type="button" className="main__error-btn" onClick={this.throwErrorFunction}>
-          Throw Error
-        </button>
-        <div className="main__input-block">
-          <SearchForm onQuerySubmit={this.handleSubmit} />
-        </div>
-        <div className="main__list">
-          {isLoading ? <Loader /> : <List cards={this.state.cardsList} />}
-        </div>
-      </main>
-    );
-  }
+    localQuery ? handleFetch(localQuery) : handleFetch('');
+  }, []);
+
+  return (
+    <main className="page__main main">
+      <button type="button" className="main__error-btn" onClick={throwErrorFunction}>
+        Throw Error
+      </button>
+      <div className="main__input-block">
+        <SearchForm onQuerySubmit={handleSubmit} />
+      </div>
+      <div className="main__list">
+        {state.isLoading ? <Loader /> : <List cards={state.cardsList} />}
+      </div>
+    </main>
+  );
 }
 export default MainPage;
