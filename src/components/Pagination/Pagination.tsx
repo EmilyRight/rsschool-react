@@ -1,9 +1,11 @@
 import { MouseEvent, useEffect, useRef, useState } from 'react';
 import './pagination.scss';
+import { useNavigate } from 'react-router';
 
 type TPaginationProps = {
   pages: number;
   onTogglePage: (query: string, id: number) => void;
+  setSearchParams: (id: string) => void;
 };
 
 type TPaginationState = {
@@ -22,9 +24,10 @@ function Pagination({ pages, onTogglePage }: TPaginationProps) {
     isLeftBtnDisabled: true,
     transition: 0,
     step: 0,
-    currentPage: 0,
+    currentPage: 1,
   });
   const pagesArray = [];
+  const navigate = useNavigate();
   for (let i = 0; i < pages; i++) {
     pagesArray.push(i + 1);
   }
@@ -35,7 +38,16 @@ function Pagination({ pages, onTogglePage }: TPaginationProps) {
       const { id } = target;
       setState({ ...state, currentPage: Number(id) });
       onTogglePage('', Number(id));
+      setSearchParams(id);
+      navigate(`/?page=${id}`);
     }
+  };
+
+  const setSearchParams = (id: string) => {
+    const queryParams = new URLSearchParams({ page: id });
+    console.log(queryParams);
+
+    // setSearchParams(queryParams.size);
   };
 
   const handleRight = () => {
@@ -85,7 +97,12 @@ function Pagination({ pages, onTogglePage }: TPaginationProps) {
         <div ref={pagesRef} className="container__list list">
           {pagesArray.map(item => {
             return (
-              <div key={item} id={String(item)} className={`list__item ${state.currentPage === item? 'active' : ''}`} onClick={handleChoosePage} >
+              <div
+                key={item}
+                id={String(item)}
+                className={`list__item ${state.currentPage === item ? 'active' : ''}`}
+                onClick={handleChoosePage}
+              >
                 {item}
               </div>
             );

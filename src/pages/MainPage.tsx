@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import './main-page.scss';
 import SearchForm from '../components/SearchForm/SearchForm';
 import List from '../components/ListBlock/ListBlock';
@@ -6,6 +6,7 @@ import { TFetchedCardResults } from '../types/types';
 import Loader from '../components/Loader/Loader';
 import { fetchItems } from '../api/api';
 import Pagination from '../components/Pagination/Pagination.tsx';
+import { useSearchParams } from 'react-router-dom';
 
 type TMainPageState = {
   cardsList: TFetchedCardResults[] | null;
@@ -14,6 +15,7 @@ type TMainPageState = {
   isLoading: boolean;
   currentPage: number;
 };
+
 function MainPage() {
   const [state, setState] = useState<TMainPageState>({
     cardsList: [],
@@ -22,9 +24,12 @@ function MainPage() {
     isLoading: false,
     currentPage: 1,
   });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = searchParams.get('page');
   if (state.hasError) {
     throw new Error('test error');
   }
+
   const localQuery = localStorage.getItem('person') || '';
 
   const throwErrorFunction = () => {
@@ -40,29 +45,24 @@ function MainPage() {
       let data: TFetchedCardResults[];
       let pagesNum: number;
       if (Number(param)) {
-        console.log('param', param);
-
         data = [result];
         pagesNum = 0;
       } else {
         data = result.results;
         pagesNum = result.info.pages;
       }
-      console.log(data);
-
       setState({ ...state, cardsList: data, isLoading: false, pages: pagesNum });
     } catch (error) {
       setState({ ...state, hasError: true, isLoading: false });
     }
   }, []);
 
-  const handleSubmit = (query?: string | undefined, page?: number) => {
-    const pageParam = `?page=${page}`;
+  const handleSubmit = (query?: string | undefined) => {
     const userQuery = query?.trim().replace(/\s/, '');
-    if (userQuery === '' && page) {
+    if (userQuery === '') {
+      const pageParam = `?page=${page}`;
       console.log('pageParam', pageParam);
       handleFetch(pageParam);
-      setState({ ...state, currentPage: page });
       return;
     }
     handleFetch(userQuery);
@@ -83,7 +83,7 @@ function MainPage() {
       <div className="main__list">
         {state.isLoading ? <Loader /> : <List cards={state.cardsList} />}
       </div>
-      {state.pages !== 0 && <Pagination pages={state.pages} onTogglePage={handleSubmit} />}
+      {state.pages !== 0 && <Pagination pages={state.pages} onTogglePage={handleSubmit} setSearchParams={setSearchParams}/>}
     </main>
   );
 }
