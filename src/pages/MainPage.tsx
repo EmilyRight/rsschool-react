@@ -1,75 +1,76 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import './main-page.scss';
 import SearchForm from '../components/SearchForm/SearchForm';
 import List from '../components/ListBlock/ListBlock';
 import { TFetchedCardResults } from '../types/types';
 import Loader from '../components/Loader/Loader';
 import { fetchItems } from '../api/api';
-import mockData from '../mock/mockData.ts';
-
-const pageParam = '?page=1';
+import Pagination from '../components/Pagination/Pagination.tsx';
 
 type TMainPageState = {
   cardsList: TFetchedCardResults[] | null;
+  pages: number;
   hasError: boolean;
   isLoading: boolean;
+  currentPage: number;
 };
 function MainPage() {
   const [state, setState] = useState<TMainPageState>({
     cardsList: [],
+    pages: 0,
     hasError: false,
     isLoading: false,
+    currentPage: 1,
   });
+  if (state.hasError) {
+    throw new Error('test error');
+  }
   const localQuery = localStorage.getItem('person') || '';
-  // componentDidMount(): void {
-  //   this.handleFetch(this.state.localQuery);
-  // }
 
-  const handleFetch = async (param: string | undefined) => {
+  const throwErrorFunction = () => {
+    setState({ ...state, hasError: true });
+  };
+
+  const handleFetch = useCallback(async (param: string | undefined) => {
     setState({ ...state, isLoading: true });
 
     try {
-      // const result = await fetchItems(param);
-      // const result = mockData;
-      // let data: TFetchedCardResults[];
-      // console.log('====================================');
-      // console.log(result);
-      // console.log('====================================');
-      // if (param) {
-      //   data = [...result];
-      // }
+      const result = await fetchItems(param);
 
-      const { results } = mockData;
-      // else {
-      //   data = result.results;
-      // }
-      setState({ ...state, cardsList: results, isLoading: false });
+      let data: TFetchedCardResults[];
+      let pagesNum: number;
+      if (Number(param)) {
+        console.log('param', param);
+
+        data = [result];
+        pagesNum = 0;
+      } else {
+        data = result.results;
+        pagesNum = result.info.pages;
+      }
+      console.log(data);
+
+      setState({ ...state, cardsList: data, isLoading: false, pages: pagesNum });
     } catch (error) {
       setState({ ...state, hasError: true, isLoading: false });
-      console.log(error);
     }
-  };
+  }, []);
 
-  const handleSubmit = (query?: string | undefined) => {
+  const handleSubmit = (query?: string | undefined, page?: number) => {
+    const pageParam = `?page=${page}`;
     const userQuery = query?.trim().replace(/\s/, '');
-    if (userQuery === '') {
+    if (userQuery === '' && page) {
+      console.log('pageParam', pageParam);
       handleFetch(pageParam);
+      setState({ ...state, currentPage: page });
+      return;
     }
-
     handleFetch(userQuery);
   };
 
-  const throwErrorFunction = () => {
-    setState({ ...state, hasError: true, isLoading: false });
-  };
-
   useEffect(() => {
-    if (state.hasError) {
-      throw new Error('test error');
-    }
-
     localQuery ? handleFetch(localQuery) : handleFetch('');
-  }, []);
+  }, [handleFetch, localQuery]);
 
   return (
     <main className="page__main main">
@@ -82,6 +83,7 @@ function MainPage() {
       <div className="main__list">
         {state.isLoading ? <Loader /> : <List cards={state.cardsList} />}
       </div>
+      {state.pages !== 0 && <Pagination pages={state.pages} onTogglePage={handleSubmit} />}
     </main>
   );
 }

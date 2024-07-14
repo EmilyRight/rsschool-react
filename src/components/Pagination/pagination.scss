@@ -1,0 +1,59 @@
+.pagination {
+  width: 50%;
+  position: relative;
+  &__btn {
+    position: absolute;
+    width: 3rem;
+    height: 3rem;
+    background-color: #fff;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    &.disabled {
+      background-color: #827e7e;
+    }
+  }
+  .btn-right {
+    right: -4rem;
+    right: 0;
+    top: 0;
+  }
+  .btn-left {
+    left: -4rem;
+    left: 0;
+    top: 0;
+  }
+  .container {
+    width: 80%;
+    min-height: 3rem;
+    margin: 0 auto;
+    position: relative;
+    display: flex;
+    overflow: hidden;
+  }
+  .list {
+    display: flex;
+    flex-direction: row;
+    position: absolute;
+    gap: 1rem;
+    min-width: calc(3rem * 42);
+    left: 0;
+    justify-content: start;
+    transition: 0.4s;
+    &__item {
+      border: 1px solid white;
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    &__item.active {
+      background-color: #fff;
+    }
+  }
+}
