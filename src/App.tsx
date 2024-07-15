@@ -1,16 +1,34 @@
-import React from 'react';
 import MainPage from './pages/MainPage';
+import { Route, Routes } from 'react-router';
+import { BrowserRouter } from 'react-router-dom';
+import ErrorPage from './components/ErrorPage/ErrorPage';
+import Card from './components/Card/Card';
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 
-class App extends React.Component {
-  render() {
-    return (
-      <div className="page">
-        <ErrorBoundary>
-          <MainPage />
-        </ErrorBoundary>
-      </div>
-    );
-  }
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <ErrorBoundary>
+              <MainPage />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/page"
+          element={
+            <ErrorBoundary>
+              <MainPage />
+            </ErrorBoundary>
+          }
+        />
+        <Route path="/:id" element={<Card />} />
+        <Route path="*" element={<ErrorPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 export default App;

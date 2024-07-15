@@ -1,85 +1,108 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import './main-page.scss';
 import SearchForm from '../components/SearchForm/SearchForm';
 import List from '../components/ListBlock/ListBlock';
 import { TFetchedCardResults } from '../types/types';
 import Loader from '../components/Loader/Loader';
 import { fetchItems } from '../api/api';
-
-const pageParam = '?page=1';
+import Pagination from '../components/Pagination/Pagination.tsx';
+import { useSearchParams } from 'react-router-dom';
+import useLocalStorage from '../hooks/localStorage.tsx';
 
 type TMainPageState = {
   cardsList: TFetchedCardResults[] | null;
-  localQuery: string;
+  pages: number;
   hasError: boolean;
   isLoading: boolean;
 };
 
-class MainPage extends React.Component<Record<string, never>, TMainPageState> {
-  constructor(props: Record<string, never>) {
-    super(props);
-    this.state = {
-      cardsList: null,
-      localQuery: localStorage.getItem('person') || '',
-      hasError: false,
-      isLoading: false,
-    };
+function MainPage() {
+  const [state, setState] = useState<TMainPageState>({
+    cardsList: [],
+    pages: 0,
+    hasError: false,
+    isLoading: false,
+  });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [storedValue] = useLocalStorage<string>('person');
+  if (state.hasError) {
+    throw new Error('test error');
   }
 
-  componentDidMount(): void {
-    this.handleFetch(this.state.localQuery);
-  }
+  const throwErrorFunction = () => {
+    setState(prevState => ({ ...prevState, hasError: true }));
+  };
 
-  handleFetch = async (param: string | undefined) => {
-    this.setState({ isLoading: true });
-
+  const handleFetch = async (param: string | undefined) => {
+    setState(prevState => ({ ...prevState, isLoading: true }));
     try {
       const result = await fetchItems(param);
+
       let data: TFetchedCardResults[];
-      if (param) {
+      let pagesNum: number;
+      if (Number(param)) {
         data = [result];
+        pagesNum = 0;
       } else {
         data = result.results;
+        pagesNum = result.info.pages;
       }
-      this.setState({ cardsList: data, isLoading: false });
+      setState(prevState => ({ ...prevState, cardsList: data, isLoading: false, pages: pagesNum }));
     } catch (error) {
-      this.setState({ hasError: true, isLoading: false });
-      console.log(error);
+      setState(prevState => ({ ...prevState, hasError: true, isLoading: false }));
     }
   };
 
-  handleSubmit = (query?: string | undefined) => {
+  const handleFetchPage = (page: string) => {
+    const pageParam = `?page=${page}`;
+    handleFetch(pageParam);
+  };
+
+  const handleSubmit = (query?: string | undefined) => {
     const userQuery = query?.trim().replace(/\s/, '');
-    if (userQuery === '') {
-      this.handleFetch(pageParam);
+    if (!userQuery) {
+      const page = searchParams.get('page') || '1';
+      handleFetchPage(page);
+      return;
     }
-
-    this.handleFetch(userQuery);
+    handleFetch(userQuery);
   };
 
-  throwErrorFunction = () => {
-    this.setState({ hasError: true, isLoading: false });
-  };
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      if (storedValue && storedValue !== '') {
+        await handleFetch(storedValue);
+      } else {
+        const page = searchParams.get('page') || '1';
+        handleFetchPage(page);
+      }
+    };
 
-  render() {
-    const { isLoading, hasError } = this.state;
-    if (hasError) {
-      throw new Error('Test error');
-    }
+    fetchInitialData();
+  }, [storedValue, searchParams.get('page')]);
 
-    return (
-      <main className="page__main main">
-        <button type="button" className="main__error-btn" onClick={this.throwErrorFunction}>
-          Throw Error
-        </button>
-        <div className="main__input-block">
-          <SearchForm onQuerySubmit={this.handleSubmit} />
-        </div>
-        <div className="main__list">
-          {isLoading ? <Loader /> : <List cards={this.state.cardsList} />}
-        </div>
-      </main>
-    );
-  }
+  return (
+    <main className="page__main main">
+      <button type="button" className="main__error-btn" onClick={throwErrorFunction}>
+        Throw Error
+      </button>
+      <div className="main__input-block">
+        <SearchForm onQuerySubmit={handleSubmit} />
+      </div>
+      <div className="main__list">
+        {state.isLoading ? <Loader /> : <List cards={state.cardsList} />}
+      </div>
+      {state.pages !== 0 && (
+        <Pagination
+          pages={state.pages}
+          onTogglePage={() => {
+            const page = searchParams.get('page') || '1';
+            handleFetchPage(page);
+          }}
+          setSearchParams={setSearchParams}
+        />
+      )}
+    </main>
+  );
 }
 export default MainPage;
