@@ -1,19 +1,20 @@
-import React, { ChangeEvent, FormEvent, useState } from 'react';
+import  { ChangeEvent, FormEvent, useState } from 'react';
 import './search-form.scss';
+import useLocalStorage from '../../hooks/localStorage';
 
 type TSearchFormProps = {
   onQuerySubmit: (query: string) => void;
 };
 
 type TSearchFormState = {
-  query: string;
+  query: string | null;
 };
 
 function SearchForm(props: TSearchFormProps) {
+  const [storedValue, setStoredValue] = useLocalStorage<string>('person');
   const [state, setState] = useState<TSearchFormState>({
-    query: localStorage.getItem('person') || '',
+    query: storedValue,
   });
-
   const handleInput = (event: ChangeEvent<HTMLInputElement>) => {
     const element = event.target as HTMLInputElement;
     const value = element.value;
@@ -23,9 +24,12 @@ function SearchForm(props: TSearchFormProps) {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const { query } = state;
+
     const { onQuerySubmit } = props;
-    localStorage.setItem('person', query);
-    onQuerySubmit(query);
+    if (query) {
+      setStoredValue(query);
+      onQuerySubmit(query);
+    }
   };
 
   return (
@@ -35,7 +39,7 @@ function SearchForm(props: TSearchFormProps) {
           type="text"
           className="input-block__input"
           placeholder="Enter number from 1 to 826"
-          value={state.query}
+          value={state.query || ''}
           name="query"
           onChange={handleInput}
         />

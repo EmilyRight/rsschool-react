@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './main-page.scss';
 import SearchForm from '../components/SearchForm/SearchForm';
 import List from '../components/ListBlock/ListBlock';
@@ -7,13 +7,13 @@ import Loader from '../components/Loader/Loader';
 import { fetchItems } from '../api/api';
 import Pagination from '../components/Pagination/Pagination.tsx';
 import { useSearchParams } from 'react-router-dom';
+import useLocalStorage from '../hooks/localStorage.tsx';
 
 type TMainPageState = {
   cardsList: TFetchedCardResults[] | null;
   pages: number;
   hasError: boolean;
   isLoading: boolean;
-  currentPage: number;
 };
 
 function MainPage() {
@@ -22,23 +22,19 @@ function MainPage() {
     pages: 0,
     hasError: false,
     isLoading: false,
-    currentPage: 1,
   });
   const [searchParams, setSearchParams] = useSearchParams();
-  const page = searchParams.get('page');
+  const [storedValue] = useLocalStorage<string>('person');
   if (state.hasError) {
     throw new Error('test error');
   }
 
-  const localQuery = localStorage.getItem('person') || '';
-
   const throwErrorFunction = () => {
-    setState({ ...state, hasError: true });
+    setState(prevState => ({ ...prevState, hasError: true }));
   };
 
-  const handleFetch = useCallback(async (param: string | undefined) => {
-    setState({ ...state, isLoading: true });
-
+  const handleFetch = async (param: string | undefined) => {
+    setState(prevState => ({ ...prevState, isLoading: true }));
     try {
       const result = await fetchItems(param);
 
@@ -51,26 +47,39 @@ function MainPage() {
         data = result.results;
         pagesNum = result.info.pages;
       }
-      setState({ ...state, cardsList: data, isLoading: false, pages: pagesNum });
+      setState(prevState => ({ ...prevState, cardsList: data, isLoading: false, pages: pagesNum }));
     } catch (error) {
-      setState({ ...state, hasError: true, isLoading: false });
+      setState(prevState => ({ ...prevState, hasError: true, isLoading: false }));
     }
-  }, []);
+  };
+
+  const handleFetchPage = (page: string) => {
+    const pageParam = `?page=${page}`;
+    handleFetch(pageParam);
+  };
 
   const handleSubmit = (query?: string | undefined) => {
     const userQuery = query?.trim().replace(/\s/, '');
-    if (userQuery === '') {
-      const pageParam = `?page=${page}`;
-      console.log('pageParam', pageParam);
-      handleFetch(pageParam);
+    if (!userQuery) {
+      const page = searchParams.get('page') || '1';
+      handleFetchPage(page);
       return;
     }
     handleFetch(userQuery);
   };
 
   useEffect(() => {
-    localQuery ? handleFetch(localQuery) : handleFetch('');
-  }, [handleFetch, localQuery]);
+    const fetchInitialData = async () => {
+      if (storedValue && storedValue !== '') {
+        await handleFetch(storedValue);
+      } else {
+        const page = searchParams.get('page') || '1';
+        handleFetchPage(page);
+      }
+    };
+
+    fetchInitialData();
+  }, [storedValue, searchParams.get('page')]);
 
   return (
     <main className="page__main main">
@@ -83,7 +92,16 @@ function MainPage() {
       <div className="main__list">
         {state.isLoading ? <Loader /> : <List cards={state.cardsList} />}
       </div>
-      {state.pages !== 0 && <Pagination pages={state.pages} onTogglePage={handleSubmit} setSearchParams={setSearchParams}/>}
+      {state.pages !== 0 && (
+        <Pagination
+          pages={state.pages}
+          onTogglePage={() => {
+            const page = searchParams.get('page') || '1';
+            handleFetchPage(page);
+          }}
+          setSearchParams={setSearchParams}
+        />
+      )}
     </main>
   );
 }

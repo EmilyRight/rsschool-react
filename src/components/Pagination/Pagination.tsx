@@ -1,11 +1,14 @@
 import { MouseEvent, useEffect, useRef, useState } from 'react';
 import './pagination.scss';
-import { useNavigate } from 'react-router';
+import { useSearchParams } from 'react-router-dom';
 
+type TPageParam = {
+  page: string;
+};
 type TPaginationProps = {
   pages: number;
-  onTogglePage: (query: string, id: number) => void;
-  setSearchParams: (id: string) => void;
+  onTogglePage: () => void;
+  setSearchParams: (param: TPageParam) => void;
 };
 
 type TPaginationState = {
@@ -16,18 +19,19 @@ type TPaginationState = {
   currentPage: number;
 };
 
-function Pagination({ pages, onTogglePage }: TPaginationProps) {
+function Pagination({ pages, onTogglePage, setSearchParams }: TPaginationProps) {
   const pagesRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [searchParams,] = useSearchParams();
   const [state, setState] = useState<TPaginationState>({
     isRightBtnDisabled: false,
     isLeftBtnDisabled: true,
     transition: 0,
     step: 0,
-    currentPage: 1,
+    currentPage: Number(searchParams.get('page') || '1'),
   });
   const pagesArray = [];
-  const navigate = useNavigate();
+
   for (let i = 0; i < pages; i++) {
     pagesArray.push(i + 1);
   }
@@ -37,17 +41,13 @@ function Pagination({ pages, onTogglePage }: TPaginationProps) {
     if (target) {
       const { id } = target;
       setState({ ...state, currentPage: Number(id) });
-      onTogglePage('', Number(id));
-      setSearchParams(id);
-      navigate(`/?page=${id}`);
+      setParams(id);
+      onTogglePage();
     }
   };
 
-  const setSearchParams = (id: string) => {
-    const queryParams = new URLSearchParams({ page: id });
-    console.log(queryParams);
-
-    // setSearchParams(queryParams.size);
+  const setParams = (page: string) => {
+    setSearchParams({ page });
   };
 
   const handleRight = () => {

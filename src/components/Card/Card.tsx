@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './card.scss';
 import { TFetchedCardResults } from '../../types/types';
 import { useNavigate, useParams } from 'react-router';
@@ -34,7 +34,7 @@ function Card() {
         setState({ ...state, isLoading: false, detail: result });
       } catch (error) {
         setState({ ...state, isLoading: false });
-        navigate("*")
+        navigate('*');
         throw new Error();
       }
     };
