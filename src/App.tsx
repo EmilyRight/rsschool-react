@@ -10,7 +10,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route
-          path="/"
+          path="/rsschool-react/public/"
           element={
             <ErrorBoundary>
               <MainPage />
@@ -18,14 +18,14 @@ function App() {
           }
         />
         <Route
-          path="/page"
+          path="/rsschool-react/public/page"
           element={
             <ErrorBoundary>
               <MainPage />
             </ErrorBoundary>
           }
         />
-        <Route path="/:id" element={<Card />} />
+        <Route path="/rsschool-react/public/:id" element={<Card />} />
         <Route path="*" element={<ErrorPage />} />
       </Routes>
     </BrowserRouter>
