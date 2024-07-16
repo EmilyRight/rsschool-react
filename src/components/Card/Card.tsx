@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import './card.scss';
 import { TFetchedCardResults } from '../../types/types';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate, useOutletContext, useParams } from 'react-router';
 import { fetchItems } from '../../api/api';
 import Loader from '../Loader/Loader';
 import { MAIN_PAGE_PATH } from '../../constants/constants';
@@ -16,6 +16,10 @@ type TCardState = {
   detail: TFetchedCardResults | null;
 };
 
+interface OutletContext {
+  toggleSingleCard: () => void;
+}
+
 function Card() {
   const { id } = useParams<TCardParams>();
   const navigate = useNavigate();
@@ -25,9 +29,11 @@ function Card() {
     isLoading: false,
     detail: null,
   });
+  const { toggleSingleCard } = useOutletContext<OutletContext>();
   console.log('render card');
 
   const handleClose = () => {
+    toggleSingleCard();
     navigate(`${MAIN_PAGE_PATH}/?page=${page}`);
   };
 
