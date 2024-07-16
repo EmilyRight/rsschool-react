@@ -36,8 +36,8 @@ function MainPage() {
     setState(prevState => ({ ...prevState, hasError: true }));
   };
 
-  const openSingleCard = () => {
-    setState(prevState => ({ ...prevState, isSingleCardOpened: true }));
+  const toggleSingleCard = () => {
+    setState(prevState => ({ ...prevState, isSingleCardOpened: !prevState.isSingleCardOpened }));
   };
 
   const handleFetch = async (param: string | undefined) => {
@@ -57,7 +57,6 @@ function MainPage() {
           cardsList: data,
           isLoading: false,
           pages: pagesNum,
-          isSingleCardOpened: true,
         }));
       } else {
         data = result.results;
@@ -67,7 +66,6 @@ function MainPage() {
           cardsList: data,
           isLoading: false,
           pages: pagesNum,
-          isSingleCardOpened: false,
         }));
       }
     } catch (error) {
@@ -81,17 +79,16 @@ function MainPage() {
   };
 
   const handleSubmit = (query?: string | null) => {
+    setState(prevState => ({ ...prevState, isSingleCardOpened: false }));
     const userQuery = query?.trim().replace(/\s/, '');
-    console.log('userQuery', userQuery);
+
     if (!userQuery) {
-      console.log('handleSubmit no userquery', userQuery);
       const page = searchParams.get('page') || '1';
       handleFetchPage(page);
       return;
     }
-    console.log('userQuery', userQuery);
+
     handleFetch(userQuery);
-    setState(prevState => ({ ...prevState, isSingleCardOpened: false }));
   };
 
   useEffect(() => {
@@ -122,10 +119,10 @@ function MainPage() {
           {state.isLoading ? (
             <Loader />
           ) : (
-            <List cards={state.cardsList} openCard={openSingleCard} />
+            <List cards={state.cardsList} openCard={toggleSingleCard} />
           )}
         </div>
-        {state.isSingleCardOpened && <Outlet />}
+        {state.isSingleCardOpened && <Outlet context={{ toggleSingleCard }} />}
       </div>
       {state.pages !== 0 && (
         <Pagination
