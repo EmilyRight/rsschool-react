@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router';
 import { fetchItems } from '../../api/api';
 import Loader from '../Loader/Loader';
 import { MAIN_PAGE_PATH } from '../../constants/constants';
+import { useSearchParams } from 'react-router-dom';
 
 type TCardParams = {
   id: string;
@@ -18,6 +19,8 @@ type TCardState = {
 function Card() {
   const { id } = useParams<TCardParams>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const page = searchParams.get('page') || '1';
   const [state, setState] = useState<TCardState>({
     isLoading: false,
     detail: null,
@@ -25,7 +28,7 @@ function Card() {
   console.log('render card');
 
   const handleClose = () => {
-    navigate(`${MAIN_PAGE_PATH}`);
+    navigate(`${MAIN_PAGE_PATH}/?page=${page}`);
   };
 
   useEffect(() => {

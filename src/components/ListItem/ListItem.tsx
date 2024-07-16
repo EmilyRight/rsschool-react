@@ -12,8 +12,8 @@ type TDetailedCardProps = {
 };
 function PersonCard(props: TDetailedCardProps) {
   const [searchParams] = useSearchParams();
-  const { id, name, species, gender, image, openCard } = props;
   const page = searchParams.get('page') || '1';
+  const { id, name, species, gender, image, openCard } = props;
 
   return (
     <Link
