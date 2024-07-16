@@ -8,17 +8,20 @@
 
 .main {
   display: flex;
-  max-width: 80%;
-  margin: 0 auto;
-  flex-direction: column;
   align-items: center;
+  flex-direction: column;
+  flex-wrap: wrap;
+  max-width: 70%;
+  margin: 0 auto;
   &__input-block {
     width: 80%;
+    flex-basis: 100%;
     @media (min-width: 780px) {
       width: 50%;
     }
   }
   &__error-btn {
+    flex-basis: 100%;
     border-radius: 8px;
     border: 1px solid transparent;
     padding: 0.6em 1.2em;
@@ -38,7 +41,10 @@
       box-shadow: 0 0 15px 2px rgb(255, 255, 255);
     }
   }
-  &__list {
+  &__content {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
   }
 }
 

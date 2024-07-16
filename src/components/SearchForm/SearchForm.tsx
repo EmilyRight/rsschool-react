@@ -1,4 +1,4 @@
-import  { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useState } from 'react';
 import './search-form.scss';
 import useLocalStorage from '../../hooks/localStorage';
 
@@ -15,6 +15,8 @@ function SearchForm(props: TSearchFormProps) {
   const [state, setState] = useState<TSearchFormState>({
     query: storedValue,
   });
+
+
   const handleInput = (event: ChangeEvent<HTMLInputElement>) => {
     const element = event.target as HTMLInputElement;
     const value = element.value;
@@ -26,9 +28,13 @@ function SearchForm(props: TSearchFormProps) {
     const { query } = state;
 
     const { onQuerySubmit } = props;
-    if (query) {
+    if (query && query !== null) {
+      console.log('handleSubmit', query);
       setStoredValue(query);
       onQuerySubmit(query);
+    } else {
+      setStoredValue('');
+      onQuerySubmit('');
     }
   };
 

@@ -4,6 +4,7 @@ import { TFetchedCardResults } from '../../types/types';
 import { useNavigate, useParams } from 'react-router';
 import { fetchItems } from '../../api/api';
 import Loader from '../Loader/Loader';
+import { MAIN_PAGE_PATH } from '../../constants/constants';
 
 type TCardParams = {
   id: string;
@@ -21,9 +22,10 @@ function Card() {
     isLoading: false,
     detail: null,
   });
+  console.log('render card');
 
   const handleClose = () => {
-    navigate('/');
+    navigate(`${MAIN_PAGE_PATH}`);
   };
 
   useEffect(() => {
@@ -46,7 +48,7 @@ function Card() {
   return state.isLoading ? (
     <Loader />
   ) : (
-    <div className="card">
+    <div className="cards__card card">
       <div className="card__content card-content">
         <div className="card-content__image">
           <img src={state.detail?.image} alt="" />
