@@ -8,6 +8,9 @@ type TListProps = {
 };
 
 function List({ cards, openCard }: TListProps) {
+  if (!cards || cards.length === 0) {
+    return <div>No cards available</div>;
+  }
   return (
     <div className="list-block list">
       {cards?.map(({ id, name, image, species, gender }) => (
