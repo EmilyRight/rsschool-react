@@ -17,8 +17,8 @@ function PersonCard(props: TDetailedCardProps) {
   const { id, name, species, gender, image, openCard } = props;
 
   return (
-    <Link to={`${MAIN_PAGE_PATH}/${id}?page=${page}`} id={`${id}`} onClick={openCard}>
-      <div className="list__item item" role="card">
+    <div className="list__item item" role="card">
+      <Link to={`${MAIN_PAGE_PATH}/${id}?page=${page}`} id={`${id}`} onClick={openCard}>
         <div className="item__image">
           <img src={image} alt="" role="img" />
         </div>
@@ -31,8 +31,8 @@ function PersonCard(props: TDetailedCardProps) {
         <div className="item__species" role="species">
           {species}
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }
 

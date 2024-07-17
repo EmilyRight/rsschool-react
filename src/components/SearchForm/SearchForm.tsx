@@ -16,11 +16,11 @@ function SearchForm(props: TSearchFormProps) {
     query: storedValue,
   });
 
-
   const handleInput = (event: ChangeEvent<HTMLInputElement>) => {
     const element = event.target as HTMLInputElement;
     const value = element.value;
     setState({ query: value });
+    console.log(value);
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -49,7 +49,7 @@ function SearchForm(props: TSearchFormProps) {
           name="query"
           onChange={handleInput}
         />
-        <button className="input-block__button" type="submit">
+        <button className="input-block__button" type="submit" role="search-btn">
           Search
         </button>
       </form>
