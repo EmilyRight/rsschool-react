@@ -30,7 +30,6 @@ function Card() {
     detail: null,
   });
   const { toggleSingleCard } = useOutletContext<OutletContext>();
-  console.log('render card');
 
   const handleClose = () => {
     toggleSingleCard();
@@ -67,7 +66,14 @@ function Card() {
         <div className="card-content__species">{state.detail?.species}</div>
         <div className="card-content__species">{state.detail?.status}</div>
       </div>
-      <div className="card-content__btn" onClick={handleClose}>
+      <div
+        className="card-content__btn"
+        onClick={() => {
+          console.log('Button clicked');
+          handleClose();
+        }}
+        role="close-card-btn"
+      >
         Close
       </div>
     </div>
