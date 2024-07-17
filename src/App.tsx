@@ -20,14 +20,6 @@ function App() {
         >
           <Route path={`${MAIN_PAGE_PATH}/:id`} element={<Card />} />
         </Route>
-        <Route
-          path={`${MAIN_PAGE_PATH}/page`}
-          element={
-            <ErrorBoundary>
-              <MainPage />
-            </ErrorBoundary>
-          }
-        />
         <Route path="*" element={<ErrorPage />} />
       </Routes>
     </BrowserRouter>
