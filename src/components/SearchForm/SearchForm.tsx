@@ -2,15 +2,11 @@ import { ChangeEvent, FormEvent, useState } from 'react';
 import './search-form.scss';
 import useLocalStorage from '../../hooks/localStorage';
 
-type TSearchFormProps = {
-  onQuerySubmit: (query: string) => void;
-};
-
 type TSearchFormState = {
   query: string | null;
 };
 
-function SearchForm(props: TSearchFormProps) {
+function SearchForm() {
   const [storedValue, setStoredValue] = useLocalStorage<string>('person');
   const [state, setState] = useState<TSearchFormState>({
     query: storedValue,
@@ -27,14 +23,11 @@ function SearchForm(props: TSearchFormProps) {
     event.preventDefault();
     const { query } = state;
 
-    const { onQuerySubmit } = props;
     if (query && query !== null) {
       console.log('handleSubmit', query);
       setStoredValue(query);
-      onQuerySubmit(query);
     } else {
       setStoredValue('');
-      onQuerySubmit('');
     }
   };
 

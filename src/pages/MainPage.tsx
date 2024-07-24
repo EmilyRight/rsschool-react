@@ -1,140 +1,48 @@
-import { useEffect, useState } from 'react';
 import './main-page.scss';
-import SearchForm from '../components/SearchForm/SearchForm';
 import List from '../components/ListBlock/ListBlock';
-import { TFetchedCardResults } from '../types/types';
 import Loader from '../components/Loader/Loader';
-import { fetchItems } from '../api/api';
-import Pagination from '../components/Pagination/Pagination.tsx';
 import { Outlet, useSearchParams } from 'react-router-dom';
-import useLocalStorage from '../hooks/localStorage.tsx';
-
-type TMainPageState = {
-  cardsList: TFetchedCardResults[] | null;
-  pages: number;
-  hasError: boolean;
-  isLoading: boolean;
-  isSingleCardOpened: boolean;
-};
+import Header from '../components/Header/Header.tsx';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../redux/store.ts';
+import { useGetAllPersonsQuery } from '../redux/services/api.ts';
+import { useEffect } from 'react';
+import  { addPage } from '../redux/slices/currentPageSlice.ts';
 
 function MainPage() {
-  const [state, setState] = useState<TMainPageState>({
-    cardsList: [],
-    pages: 0,
-    hasError: false,
-    isLoading: false,
-    isSingleCardOpened: false,
-  });
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [storedValue] = useLocalStorage<string>('person');
-
-  if (state.hasError) {
-    throw new Error('test error');
-  }
-
-  const throwErrorFunction = () => {
-    setState(prevState => ({ ...prevState, hasError: true }));
-  };
-
-  const toggleSingleCard = () => {
-    setState(prevState => ({ ...prevState, isSingleCardOpened: !prevState.isSingleCardOpened }));
-  };
-
-  const handleFetch = async (param: string | undefined) => {
-    setState(prevState => ({ ...prevState, isLoading: true }));
-
-    try {
-      const result = await fetchItems(param);
-      console.log('handleFetch', param);
-
-      let data: TFetchedCardResults[];
-      let pagesNum: number;
-      if (Number(param)) {
-        data = [result];
-        pagesNum = 0;
-        setState(prevState => ({
-          ...prevState,
-          cardsList: data,
-          isLoading: false,
-          pages: pagesNum,
-        }));
-      } else {
-        data = result.results;
-        pagesNum = result.info.pages;
-        setState(prevState => ({
-          ...prevState,
-          cardsList: data,
-          isLoading: false,
-          pages: pagesNum,
-        }));
-      }
-    } catch (error) {
-      setState(prevState => ({ ...prevState, hasError: true, isLoading: false }));
-    }
-  };
-
-  const handleFetchPage = (page: string) => {
-    const pageParam = `?page=${page}`;
-    handleFetch(pageParam);
-  };
-
-  const handleSubmit = (query?: string | null) => {
-    setState(prevState => ({ ...prevState, isSingleCardOpened: false }));
-    const userQuery = query?.trim().replace(/\s/, '');
-
-    if (!userQuery) {
-      const page = searchParams.get('page') || '1';
-      handleFetchPage(page);
-      return;
-    }
-
-    handleFetch(userQuery);
-  };
+  const dispatch = useDispatch();
+  const { detailedCard } = useSelector((state: RootState) => state.detailedCard);
+  const [searchParams] = useSearchParams();
+  const page = searchParams.get('page') || '1';
+  const { data, isLoading } = useGetAllPersonsQuery({ currentPage: page });
 
   useEffect(() => {
-    const fetchInitialData = async () => {
-      if (storedValue && storedValue !== '') {
-        await handleFetch(storedValue);
-        console.log('render storedValue');
-      } else {
-        const page = searchParams.get('page') || '1';
-        handleFetchPage(page);
-        console.log('render page');
-      }
-    };
-
-    fetchInitialData();
-  }, [storedValue, searchParams]);
+    if (data) {
+      const pageParams = {
+        pages: data.info.pages,
+        currentPage: Number(page),
+        currentPageCards: data.results,
+      };
+      dispatch(addPage(pageParams));
+    }
+  }, [data, page, dispatch]);
 
   return (
-    <main className="page__main main">
-      <button type="button" className="main__error-btn" onClick={throwErrorFunction}>
-        Throw Error
-      </button>
-      <div className="main__input-block">
-        <SearchForm onQuerySubmit={handleSubmit} />
-      </div>
-      <div className="main__content cards">
-        <div className="cards__list">
-          {state.isLoading ? (
-            <Loader />
-          ) : (
-            <List cards={state.cardsList} openCard={toggleSingleCard} />
-          )}
+    <div className={`page ${Object.keys(detailedCard).length !== 0 ? 'no-scroll' : ''}`}>
+      <Header />
+      <main
+        className={`page__main main ${Object.keys(detailedCard).length !== 0 ? 'no-scroll' : ''}`}
+      >
+        <div className="container">
+          <div className="main__content cards">
+            <div className="cards__list">
+              {isLoading ? <Loader /> : <List cardsList={data?.results} />}
+            </div>
+            {Object.keys(detailedCard).length !== 0 ? <Outlet /> : ''}
+          </div>
         </div>
-        {state.isSingleCardOpened && <Outlet context={{ toggleSingleCard }} />}
-      </div>
-      {state.pages !== 0 && (
-        <Pagination
-          pages={state.pages}
-          onTogglePage={() => {
-            const page = searchParams.get('page') || '1';
-            handleFetchPage(page);
-          }}
-          setSearchParams={setSearchParams}
-        />
-      )}
-    </main>
+      </main>
+    </div>
   );
 }
 export default MainPage;

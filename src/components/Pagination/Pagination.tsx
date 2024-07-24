@@ -1,129 +1,70 @@
-import { MouseEvent, useEffect, useRef, useState } from 'react';
+/* eslint-disable no-unsafe-optional-chaining */
+import { useEffect, useState } from 'react';
 import './pagination.scss';
 import { useSearchParams } from 'react-router-dom';
-
-type TPageParam = {
-  page: string;
-};
-type TPaginationProps = {
-  pages: number;
-  onTogglePage: () => void;
-  setSearchParams: (param: TPageParam) => void;
-};
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
 
 type TPaginationState = {
   isRightBtnDisabled: boolean;
   isLeftBtnDisabled: boolean;
-  transition: number;
-  step: number;
-  currentPage: number;
 };
 
-function Pagination({ pages, onTogglePage, setSearchParams }: TPaginationProps) {
-  const pagesRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [searchParams,] = useSearchParams();
+function Pagination() {
+  const { pages, currentPage } = useSelector((state: RootState) => state.currentPage);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [state, setState] = useState<TPaginationState>({
     isRightBtnDisabled: false,
     isLeftBtnDisabled: true,
-    transition: 0,
-    step: 0,
-    currentPage: Number(searchParams.get('page') || '1'),
   });
-  const pagesArray = [];
 
-  for (let i = 0; i < pages; i++) {
-    pagesArray.push(i + 1);
-  }
-
-  const handleChoosePage = (event: MouseEvent<HTMLDivElement>) => {
-    const target = event.currentTarget;
-    if (target) {
-      const { id } = target;
-      setState({ ...state, currentPage: Number(id) });
-      setParams(id);
-      onTogglePage();
+  const handleBtns = () => {
+    if (currentPage === 1) {
+      setState({ isLeftBtnDisabled: true, isRightBtnDisabled: false });
+    } else if (pages && currentPage === pages) {
+      setState({ isLeftBtnDisabled: false, isRightBtnDisabled: true });
+    } else if (pages && currentPage < pages) {
+      setState({ isLeftBtnDisabled: false, isRightBtnDisabled: false });
     }
   };
 
-  const setParams = (page: string) => {
-    setSearchParams({ page });
+  const handleNext = () => {
+    setSearchParams(`?page=${currentPage + 1}`);
   };
 
-  const handleRight = () => {
-    if (pagesRef.current && containerRef.current) {
-      setState(prevState => {
-        return {
-          ...prevState,
-          isLeftBtnDisabled: false,
-          transition: prevState.transition + prevState.step,
-        };
-      });
-      pagesRef.current.style.transform = `translateX(-${state.transition}px)`;
-      if (state.transition >= pagesRef.current.offsetWidth - containerRef.current.offsetWidth) {
-        setState({ ...state, isRightBtnDisabled: true });
-        pagesRef.current.style.right = `translateX(-${state.transition}px)`;
-      }
-    }
-  };
-
-  const handleLeft = () => {
-    if (pagesRef.current && containerRef.current) {
-      setState(prevState => {
-        return {
-          ...prevState,
-          isRightBtnDisabled: false,
-          transition: prevState.transition - prevState.step,
-        };
-      });
-      pagesRef.current.style.transform = `translateX(-${state.transition}px)`;
-      if (state.transition <= 0) {
-        setState({ ...state, isLeftBtnDisabled: true });
-        pagesRef.current.style.left = `translateX(-${state.transition}px)`;
-      }
-    }
+  const handlePrev = () => {
+    setSearchParams(`?page=${currentPage - 1}`);
   };
 
   useEffect(() => {
-    if (pagesRef.current) {
-      const step = pagesRef.current?.offsetWidth / (pages / 5) || 100;
-      setState(prevState => ({ ...prevState, step }));
-    }
-  }, [state.transition]);
+    handleBtns();
+  }, [currentPage, searchParams]);
 
   return (
     <div className="pagination">
-      <div className="pagination__inner-container container" ref={containerRef}>
-        <div ref={pagesRef} className="container__list list">
-          {pagesArray.map(item => {
-            return (
-              <div
-                key={item}
-                id={String(item)}
-                className={`list__item ${state.currentPage === item ? 'active' : ''}`}
-                onClick={handleChoosePage}
-              >
-                {item}
-              </div>
-            );
-          })}
-        </div>
+      <div className="pagination__buttons">
+        <button
+          type="button"
+          className={`pagination__btn btn-left ${state.isLeftBtnDisabled ? 'disabled' : ''}`}
+          disabled={state.isLeftBtnDisabled}
+          onClick={handlePrev}
+        >
+          Prev
+        </button>
+
+        <button
+          className={`pagination__btn btn-right ${state.isRightBtnDisabled ? 'disabled' : ''}`}
+          onClick={handleNext}
+          disabled={state.isRightBtnDisabled}
+        >
+          Next
+        </button>
       </div>
-      <button
-        type="button"
-        className={`pagination__btn btn-left ${state.isLeftBtnDisabled ? 'disabled' : ''}`}
-        disabled={state.isLeftBtnDisabled}
-        onClick={handleLeft}
-      >
-        {'<<'}
-      </button>
-      <button
-        className={`pagination__btn btn-right ${state.isRightBtnDisabled ? 'disabled' : ''} }`}
-        onClick={handleRight}
-        disabled={state.isRightBtnDisabled}
-      >
-        {'>>'}
-      </button>
+      <div className="pagination__text">
+        Page {currentPage} of {pages}
+      </div>
     </div>
   );
 }

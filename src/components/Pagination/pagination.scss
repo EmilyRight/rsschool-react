@@ -1,10 +1,23 @@
 .pagination {
-  width: 50%;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  order: 2;
+  @media (min-width: 780px) {
+    order: 3;
+    flex-basis: 30%;
+  }
+  &__buttons {
+    display: flex;
+    gap: 1rem;
+  }
   &__btn {
-    position: absolute;
-    width: 3rem;
-    height: 3rem;
+    padding: 1rem;
+    cursor: pointer;
+    border: none;
     background-color: #fff;
     border-radius: 5px;
     display: flex;
@@ -13,47 +26,13 @@
     &.disabled {
       background-color: #827e7e;
     }
-  }
-  .btn-right {
-    right: -4rem;
-    right: 0;
-    top: 0;
-  }
-  .btn-left {
-    left: -4rem;
-    left: 0;
-    top: 0;
-  }
-  .container {
-    width: 80%;
-    min-height: 3rem;
-    margin: 0 auto;
-    position: relative;
-    display: flex;
-    overflow: hidden;
-  }
-  .list {
-    display: flex;
-    flex-direction: row;
-    position: absolute;
-    gap: 1rem;
-    min-width: calc(3rem * 42);
-    left: 0;
-    justify-content: start;
-    transition: 0.4s;
-    &__item {
-      border: 1px solid white;
-      width: 2rem;
-      height: 2rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-radius: 5px;
-      cursor: pointer;
+    &:hover {
+      box-shadow: 0 0 15px 2px rgb(255, 255, 255);
     }
+  }
 
-    &__item.active {
-      background-color: #fff;
-    }
+  &__text {
+    font-size: 2.2rem;
+    text-align: center;
   }
 }

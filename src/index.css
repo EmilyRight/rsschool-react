@@ -26,11 +26,8 @@ html {
 }
 a {
   font-weight: 500;
-  color: #646cff;
+  color: black;
   text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
 }
 
 body {
@@ -39,6 +36,11 @@ body {
   place-items: center;
   width: 100vw;
   height: 100vh;
+}
+
+body.no-scroll {
+  max-width: 100vh;
+  overflow: hidden;
 }
 
 h1 {
@@ -51,10 +53,25 @@ h1 {
     color: #213547;
     background-color: #ffffff;
   }
-  a:hover {
-    color: #747bff;
-  }
+
   button {
     background-color: #f9f9f9;
+  }
+}
+
+.container {
+  max-width: 90%;
+  margin: 0 auto;
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+@media (min-width: 780px) {
+  .container {
+    flex-wrap: nowrap;
+    max-width: 70%;
   }
 }
