@@ -1,4 +1,4 @@
-/* eslint-disable no-unsafe-optional-chaining */
+
 import { useEffect, useState } from 'react';
 import './pagination.scss';
 import { useSearchParams } from 'react-router-dom';

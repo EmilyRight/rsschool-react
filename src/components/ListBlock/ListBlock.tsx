@@ -10,7 +10,7 @@ function List(props: TListProps) {
 
   return (
     <div className="list-block list">
-      {cardsList?.map(item => <PersonCard key={item.id} cardId={item.id} />)}
+      {cardsList?.map(item => <PersonCard key={item?.id} cardId={item?.id} />)}
     </div>
   );
 }

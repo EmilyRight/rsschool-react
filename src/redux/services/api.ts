@@ -12,7 +12,7 @@ export const api = createApi({
     getAllPersons: builder.query<TCardResponse, GetAllPersonsQueryParams>({
       query: ({ currentPage = '1' } = {}) => `character/?page=${currentPage}`,
     }),
-    getPersonById: builder.query<TCard, number>({
+    getPersonById: builder.query<TCard, string>({
       query: id => `character/${id}`,
     }),
   }),

@@ -1,10 +1,10 @@
 import './list-item.scss';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { MAIN_PAGE_PATH } from '../../constants/constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { addFavorite, removeFavorite } from '../../redux/slices/favorites';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { addDetailedCard } from '../../redux/slices/cardsSlice';
 import { useGetPersonByIdQuery } from '../../redux/services/api';
 import Loader from '../Loader/Loader';
@@ -15,11 +15,12 @@ type TDetailedCardProps = {
 
 function PersonCard(props: TDetailedCardProps) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [checked, setChecked] = useState(false);
   const favorites = useSelector((state: RootState) => state.favorites.favorites);
   const { cardId } = props;
-  const { data, isLoading } = useGetPersonByIdQuery(cardId);
+  const { data, isLoading } = useGetPersonByIdQuery(String(cardId));
 
   const page = searchParams.get('page') || '1';
 
@@ -37,6 +38,7 @@ function PersonCard(props: TDetailedCardProps) {
   const showDetails = () => {
     if (data) {
       dispatch(addDetailedCard(data));
+      navigate(`${MAIN_PAGE_PATH}/${cardId}?page=${page}`);
     }
   };
 
@@ -49,12 +51,7 @@ function PersonCard(props: TDetailedCardProps) {
   return isLoading ? (
     <Loader />
   ) : (
-    <Link
-      to={`${MAIN_PAGE_PATH}/${cardId}?page=${page}`}
-      id={`${cardId}`}
-      className="list__item item"
-      role="card"
-    >
+    <div className="list__item item" role="card">
       <div className="item__content content">
         <div className="content__image">
           <img src={data?.image} alt="" role="img" />
@@ -85,7 +82,7 @@ function PersonCard(props: TDetailedCardProps) {
           More...
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
 

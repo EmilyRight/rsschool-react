@@ -1,31 +1,63 @@
 import './main-page.scss';
 import List from '../components/ListBlock/ListBlock';
 import Loader from '../components/Loader/Loader';
-import { Outlet, useSearchParams } from 'react-router-dom';
+import { Outlet, useParams, useSearchParams } from 'react-router-dom';
 import Header from '../components/Header/Header.tsx';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../redux/store.ts';
-import { useGetAllPersonsQuery } from '../redux/services/api.ts';
+import { useGetAllPersonsQuery, useGetPersonByIdQuery } from '../redux/services/api.ts';
 import { useEffect } from 'react';
-import  { addPage } from '../redux/slices/currentPageSlice.ts';
+import { addPage } from '../redux/slices/currentPageSlice.ts';
+import useLocalStorage from '../hooks/localStorage.tsx';
+import { RootState } from '../redux/store.ts';
 
 function MainPage() {
   const dispatch = useDispatch();
   const { detailedCard } = useSelector((state: RootState) => state.detailedCard);
   const [searchParams] = useSearchParams();
   const page = searchParams.get('page') || '1';
-  const { data, isLoading } = useGetAllPersonsQuery({ currentPage: page });
+
+  const [storedValue] = useLocalStorage('person');
+  const { id } = useParams();
+
+  const { data: allPersonsData, isLoading: isAllPersonsLoading } = useGetAllPersonsQuery(
+    { currentPage: page },
+    { skip: !!id },
+  );
+
+  const { data: personData, isLoading: isPersonLoading } = useGetPersonByIdQuery(id || '', {
+    skip: !id || storedValue === '',
+  });
 
   useEffect(() => {
-    if (data) {
+    if (allPersonsData && !id) {
       const pageParams = {
-        pages: data.info.pages,
+        pages: allPersonsData.info.pages,
         currentPage: Number(page),
-        currentPageCards: data.results,
+        currentPageCards: allPersonsData.results,
+      };
+      dispatch(addPage(pageParams));
+    } else if (personData) {
+      const pageParams = {
+        pages: 1,
+        currentPage: 1,
+        currentPageCards: [personData],
       };
       dispatch(addPage(pageParams));
     }
-  }, [data, page, dispatch]);
+  }, [
+    allPersonsData,
+    personData,
+    page,
+    dispatch,
+    storedValue,
+    id,
+    isAllPersonsLoading,
+    isPersonLoading,
+  ]);
+
+  const isLoading = isAllPersonsLoading || isPersonLoading;
+
+  const cardsList = (id ? [personData] : allPersonsData?.results)?.filter(card => !!card);
 
   return (
     <div className={`page ${Object.keys(detailedCard).length !== 0 ? 'no-scroll' : ''}`}>
@@ -36,9 +68,9 @@ function MainPage() {
         <div className="container">
           <div className="main__content cards">
             <div className="cards__list">
-              {isLoading ? <Loader /> : <List cardsList={data?.results} />}
+              {isLoading ? <Loader /> : <List cardsList={cardsList} />}
             </div>
-            {Object.keys(detailedCard).length !== 0 ? <Outlet /> : ''}
+            {Object.keys(detailedCard).length !== 0 && <Outlet />}
           </div>
         </div>
       </main>
