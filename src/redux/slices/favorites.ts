@@ -20,9 +20,15 @@ export const favoritesSlice = createSlice({
     removeFavorite: (state, action: PayloadAction<number>) => {
       state.favorites = [...state.favorites.filter(card => card.id !== action.payload)];
     },
+    clearFavorites: state => {
+      console.log('====================================');
+      console.log('hey2');
+      console.log('====================================');
+      state.favorites = [];
+    },
   },
 });
 
-export const { addFavorite, removeFavorite } = favoritesSlice.actions;
+export const { addFavorite, removeFavorite, clearFavorites } = favoritesSlice.actions;
 
 export default favoritesSlice.reducer;

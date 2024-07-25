@@ -9,7 +9,7 @@ function List(props: TListProps) {
   const { cardsList } = props;
 
   return (
-    <div className="list-block list">
+    <div className={`list-block list ${cardsList && cardsList?.length > 1 ? 'long' : 'short'}`}>
       {cardsList?.map(item => <PersonCard key={item?.id} cardId={item?.id} />)}
     </div>
   );

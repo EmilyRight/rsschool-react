@@ -9,6 +9,7 @@ import { useEffect } from 'react';
 import { addPage } from '../redux/slices/currentPageSlice.ts';
 import useLocalStorage from '../hooks/localStorage.tsx';
 import { RootState } from '../redux/store.ts';
+import Flyout from '../components/FlyOut/Flyout.tsx';
 
 function MainPage() {
   const dispatch = useDispatch();
@@ -74,6 +75,7 @@ function MainPage() {
           </div>
         </div>
       </main>
+      <Flyout />
     </div>
   );
 }

@@ -35,7 +35,6 @@ function Card() {
         <div
           className="card-content__btn"
           onClick={() => {
-            console.log('Button clicked');
             handleClose();
           }}
           role="close-card-btn"
