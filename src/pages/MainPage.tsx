@@ -1,140 +1,86 @@
-import { useEffect, useState } from 'react';
 import './main-page.scss';
-import SearchForm from '../components/SearchForm/SearchForm';
 import List from '../components/ListBlock/ListBlock';
-import { TFetchedCardResults } from '../types/types';
 import Loader from '../components/Loader/Loader';
-import { fetchItems } from '../api/api';
-import Pagination from '../components/Pagination/Pagination.tsx';
-import { Outlet, useSearchParams } from 'react-router-dom';
+import { Outlet, useParams, useSearchParams } from 'react-router-dom';
+import Header from '../components/Header/Header.tsx';
+import { useDispatch, useSelector } from 'react-redux';
+import { useGetAllPersonsQuery, useGetPersonByIdQuery } from '../redux/services/api.ts';
+import { useEffect } from 'react';
+import { addPage } from '../redux/slices/currentPageSlice.ts';
 import useLocalStorage from '../hooks/localStorage.tsx';
-
-type TMainPageState = {
-  cardsList: TFetchedCardResults[] | null;
-  pages: number;
-  hasError: boolean;
-  isLoading: boolean;
-  isSingleCardOpened: boolean;
-};
+import { RootState } from '../redux/store.ts';
+import Flyout from '../components/FlyOut/Flyout.tsx';
+import { useTheme } from '../ContextProvider/ContextProvider.tsx';
 
 function MainPage() {
-  const [state, setState] = useState<TMainPageState>({
-    cardsList: [],
-    pages: 0,
-    hasError: false,
-    isLoading: false,
-    isSingleCardOpened: false,
+  const dispatch = useDispatch();
+  const { theme } = useTheme();
+  const { detailedCard } = useSelector((state: RootState) => state.detailedCard);
+  const [searchParams] = useSearchParams();
+  const page = searchParams.get('page') || '1';
+
+  const [storedValue] = useLocalStorage('person');
+  const { id } = useParams();
+
+  const { data: allPersonsData, isLoading: isAllPersonsLoading } = useGetAllPersonsQuery(
+    { currentPage: page },
+    { skip: !!id },
+  );
+
+  const { data: personData, isLoading: isPersonLoading } = useGetPersonByIdQuery(id || '', {
+    skip: !id || storedValue === '',
   });
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [storedValue] = useLocalStorage<string>('person');
-
-  if (state.hasError) {
-    throw new Error('test error');
-  }
-
-  const throwErrorFunction = () => {
-    setState(prevState => ({ ...prevState, hasError: true }));
-  };
-
-  const toggleSingleCard = () => {
-    setState(prevState => ({ ...prevState, isSingleCardOpened: !prevState.isSingleCardOpened }));
-  };
-
-  const handleFetch = async (param: string | undefined) => {
-    setState(prevState => ({ ...prevState, isLoading: true }));
-
-    try {
-      const result = await fetchItems(param);
-      console.log('handleFetch', param);
-
-      let data: TFetchedCardResults[];
-      let pagesNum: number;
-      if (Number(param)) {
-        data = [result];
-        pagesNum = 0;
-        setState(prevState => ({
-          ...prevState,
-          cardsList: data,
-          isLoading: false,
-          pages: pagesNum,
-        }));
-      } else {
-        data = result.results;
-        pagesNum = result.info.pages;
-        setState(prevState => ({
-          ...prevState,
-          cardsList: data,
-          isLoading: false,
-          pages: pagesNum,
-        }));
-      }
-    } catch (error) {
-      setState(prevState => ({ ...prevState, hasError: true, isLoading: false }));
-    }
-  };
-
-  const handleFetchPage = (page: string) => {
-    const pageParam = `?page=${page}`;
-    handleFetch(pageParam);
-  };
-
-  const handleSubmit = (query?: string | null) => {
-    setState(prevState => ({ ...prevState, isSingleCardOpened: false }));
-    const userQuery = query?.trim().replace(/\s/, '');
-
-    if (!userQuery) {
-      const page = searchParams.get('page') || '1';
-      handleFetchPage(page);
-      return;
-    }
-
-    handleFetch(userQuery);
-  };
 
   useEffect(() => {
-    const fetchInitialData = async () => {
-      if (storedValue && storedValue !== '') {
-        await handleFetch(storedValue);
-        console.log('render storedValue');
-      } else {
-        const page = searchParams.get('page') || '1';
-        handleFetchPage(page);
-        console.log('render page');
-      }
-    };
+    if (allPersonsData && !id) {
+      const pageParams = {
+        pages: allPersonsData.info.pages,
+        currentPage: Number(page),
+        currentPageCards: allPersonsData.results,
+      };
+      dispatch(addPage(pageParams));
+    } else if (personData) {
+      const pageParams = {
+        pages: 1,
+        currentPage: 1,
+        currentPageCards: [personData],
+      };
+      dispatch(addPage(pageParams));
+    }
+  }, [
+    allPersonsData,
+    personData,
+    page,
+    dispatch,
+    storedValue,
+    id,
+    isAllPersonsLoading,
+    isPersonLoading,
+  ]);
 
-    fetchInitialData();
-  }, [storedValue, searchParams]);
+  const isLoading = isAllPersonsLoading || isPersonLoading;
+
+  const cardsList = (id ? [personData] : allPersonsData?.results)?.filter(card => !!card);
 
   return (
-    <main className="page__main main">
-      <button type="button" className="main__error-btn" onClick={throwErrorFunction}>
-        Throw Error
-      </button>
-      <div className="main__input-block">
-        <SearchForm onQuerySubmit={handleSubmit} />
-      </div>
-      <div className="main__content cards">
-        <div className="cards__list">
-          {state.isLoading ? (
-            <Loader />
-          ) : (
-            <List cards={state.cardsList} openCard={toggleSingleCard} />
-          )}
+    <div
+      className={`page ${Object.keys(detailedCard).length !== 0 ? 'no-scroll' : ''} page_${theme}`}
+    >
+      <Header />
+      <main
+        className={`page__main main ${Object.keys(detailedCard).length !== 0 ? 'no-scroll' : ''}`}
+      >
+        <div className="container">
+          <div className="main__content cards">
+            <div className="cards__list">
+              {isLoading ? <Loader /> : <List cardsList={cardsList} />}
+            </div>
+            {Object.keys(detailedCard).length !== 0 && <Outlet />}
+          </div>
         </div>
-        {state.isSingleCardOpened && <Outlet context={{ toggleSingleCard }} />}
-      </div>
-      {state.pages !== 0 && (
-        <Pagination
-          pages={state.pages}
-          onTogglePage={() => {
-            const page = searchParams.get('page') || '1';
-            handleFetchPage(page);
-          }}
-          setSearchParams={setSearchParams}
-        />
-      )}
-    </main>
+      </main>
+      <Flyout />
+    </div>
   );
 }
 export default MainPage;

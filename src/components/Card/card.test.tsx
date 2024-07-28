@@ -1,104 +1,81 @@
-import { render, screen } from '@testing-library/react';
-import { MemoryRouter, Route, Routes} from 'react-router-dom';
-import { afterEach, describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
+import { ReactNode } from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import * as ReactRouterDom from 'react-router-dom';
+import * as ReactRedux from 'react-redux';
 import Card from './Card';
-import MainPage from '../../pages/MainPage.tsx';
-import { fetchItems } from '../../api/api.ts';
-import { MAIN_PAGE_PATH } from '../../constants/constants.ts';
+import { testCard } from '../../mock/mockData';
+import { ThemeProvider } from '../../ContextProvider/ContextProvider';
+import { MAIN_PAGE_PATH } from '../../constants/constants';
 
+const { name, gender, image, species, status } = testCard;
+const Wrapper = ({ children }: { children: ReactNode }) => (
+  <ReactRouterDom.BrowserRouter>
+    <ThemeProvider>{children}</ThemeProvider>
+  </ReactRouterDom.BrowserRouter>
+);
 
-vi.mock('../../api/api.ts', () => {
-  const originalModule = vi.importActual<typeof import('../../api/api.ts')>('../../api/api.ts');
-  return {
-    ...originalModule,
-    fetchItems: vi.fn(),
-  };
-});
-
-vi.mock('../../ContextProvider/ContextProvider.tsx', async () => {
-  const actual = await vi.importActual<typeof import('../../ContextProvider/ContextProvider.tsx')>(
-    '../../ContextProvider/ContextProvider.tsx',
-  );
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
   return {
     ...actual,
-    useAppContext: vi.fn(),
+    useNavigate: vi.fn(),
+    useParams: vi.fn(),
+    useSearchParams: vi.fn(),
   };
 });
 
-type FetchItemsMock = jest.MockedFunction<typeof fetchItems>;
+vi.mock('react-redux', () => ({
+  useDispatch: vi.fn(),
+  useSelector: vi.fn(),
+}));
+
 describe('Card Component', () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
+  let mockDispatch: Mock;
+  const spyNavigate = vi.fn();
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    mockDispatch = vi.fn();
+    vi.spyOn(ReactRouterDom, 'useNavigate').mockReturnValue(spyNavigate);
+    const mockSearchParams = new URLSearchParams('?page=1');
+    (ReactRouterDom.useSearchParams as unknown as jest.Mock).mockReturnValue([mockSearchParams]);
+    (ReactRedux.useDispatch as unknown as jest.Mock).mockReturnValue(mockDispatch);
+    (ReactRedux.useSelector as unknown as jest.Mock).mockReturnValue({
+      detailedCard: testCard,
+    });
+    vi.spyOn(ReactRouterDom, 'useParams').mockReturnValue({ id: '1' });
+    vi.spyOn(ReactRedux, 'useSelector').mockReturnValue({ detailedCard: testCard });
   });
 
-  it('displays loading indicator while fetching data', () => {
-    (fetchItems as FetchItemsMock).mockReturnValue(new Promise(() => {}));
+  it('should navigate when close button is clicked', () => {
+    render(<Card />, { wrapper: Wrapper });
 
-    render(
-      <MemoryRouter initialEntries={[`${MAIN_PAGE_PATH}/:id`]}>
-        <Routes>
-          <Route path={`${MAIN_PAGE_PATH}`} element={<MainPage />}>
-            <Route path={`${MAIN_PAGE_PATH}/:id`} element={<Card />} />
-          </Route>
-        </Routes>
-      </MemoryRouter>,
-    );
+    const closeButton = screen.getByRole('close-card-btn');
+    expect(closeButton).toBeInTheDocument();
 
-    expect(screen.getByRole('loader')).toBeInTheDocument();
+    fireEvent.click(closeButton);
+    expect(window.location.href).toBe(`http://localhost:3000${MAIN_PAGE_PATH}/?page=1`);
   });
+});
 
-  // it('displays detailed card data correctly', async () => {
-  //   const mockData = {
-  //     image: 'http://example.com/image.jpg',
-  //     name: 'Test Name',
-  //     gender: 'Test Gender',
-  //     species: 'Test Species',
-  //     status: 'Test Status',
-  //   };
+it('should render the relevant card data', () => {
+  render(<Card />, { wrapper: Wrapper });
 
-  //   (fetchItems as FetchItemsMock).mockResolvedValue(mockData);
+  expect(screen.getByText(name)).toBeInTheDocument();
+  expect(screen.getByText(gender)).toBeInTheDocument();
+  expect(screen.getByText(species)).toBeInTheDocument();
+  expect(screen.getByText(status)).toBeInTheDocument();
+  const imgElement = screen.getByAltText('');
+  expect(imgElement).toHaveAttribute('src', image);
+});
 
-  //   render(
-  //     <MemoryRouter initialEntries={[`${MAIN_PAGE_PATH}/:id`]}>
-  //       <Routes>
-  //         <Route path={`${MAIN_PAGE_PATH}`} element={<MainPage />}>
-  //           <Route path={`${MAIN_PAGE_PATH}/:id`} element={<Card />} />
-  //         </Route>
-  //       </Routes>
-  //     </MemoryRouter>,
-  //   );
+it('should trigger additional API call when card is clicked', () => {
+  const spyDispatch = vi.spyOn(ReactRedux, 'useDispatch');
 
-  //   expect(await screen.findByText(/test name/i)).toBeInTheDocument();
-  //   expect(await screen.findByText(/test name/i)).toBeInTheDocument();
-  //   expect(await screen.findByText(/Test Gender/i)).toBeInTheDocument();
-  //   expect(await screen.findByText(/Test Species/i)).toBeInTheDocument();
-  //   expect(await screen.findByText(/Test Status/i)).toBeInTheDocument();
-  // });
+  render(<Card />, { wrapper: Wrapper });
+  const closeButton = screen.getByRole('close-card-btn');
+  fireEvent.click(closeButton);
 
-  // it('hides component when close button is clicked', async () => {
-  //   const mockedUseAppContext = useAppContext as jest.MockedFunction<() => ContextValue>;
-  //   mockedUseAppContext.mockReturnValue({
-  //     toggleSingleCard: mockToggleSingleCard,
-  //   });
-
-  //   render(
-  //     <MemoryRouter initialEntries={[`${MAIN_PAGE_PATH}/1`]}>
-  //       <AppProvider>
-  //         <Routes>
-  //           <Route path={`${MAIN_PAGE_PATH}`} element={<MainPage />}>
-  //             <Route path={`${MAIN_PAGE_PATH}/:id`} element={<Card />} />
-  //           </Route>
-  //         </Routes>
-  //       </AppProvider>
-  //       ,
-  //     </MemoryRouter>,
-  //   );
-
-  //   const closeButton = await screen.findByRole('close-card-btn');
-  //   expect(closeButton).toBeInTheDocument();
-  //   fireEvent.click(closeButton);
-  //   screen.debug();
-
-  //   expect(mockToggleSingleCard).toHaveBeenCalled();
-  // });
+  expect(spyDispatch).toHaveBeenCalled();
 });

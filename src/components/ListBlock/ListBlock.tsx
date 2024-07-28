@@ -1,29 +1,25 @@
 import './list-block.scss';
-import { TFetchedCardResults } from '../../types/types';
 import PersonCard from '../ListItem/ListItem';
+import { TCard } from '../../types/types';
+import { useTheme } from '../../ContextProvider/ContextProvider';
+
+
 
 type TListProps = {
-  cards: TFetchedCardResults[] | null;
-  openCard: () => void;
+  cardsList: TCard[] | undefined;
 };
 
-function List({ cards, openCard }: TListProps) {
-  if (!cards || cards.length === 0) {
-    return <div>No cards available</div>;
-  }
-  return (
-    <div className="list-block list">
-      {cards?.map(({ id, name, image, species, gender }) => (
-        <PersonCard
-          key={id}
-          id={id}
-          name={name}
-          image={image}
-          species={species}
-          gender={gender}
-          openCard={openCard}
-        />
-      ))}
+function List(props: TListProps) {
+  const { cardsList } = props;
+  const { theme } = useTheme();
+
+  return cardsList?.length === 0 ? (
+    <div>No cards available</div>
+  ) : (
+    <div
+      className={`list-block list list_${theme} ${cardsList && cardsList?.length > 1 ? 'long' : 'short'}`}
+    >
+      {cardsList?.map(item => <PersonCard key={item?.id} cardId={item?.id} />)}
     </div>
   );
 }

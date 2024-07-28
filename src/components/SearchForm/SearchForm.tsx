@@ -1,17 +1,16 @@
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import './search-form.scss';
 import useLocalStorage from '../../hooks/localStorage';
-
-type TSearchFormProps = {
-  onQuerySubmit: (query: string) => void;
-};
+import { useNavigate } from 'react-router';
+import Button from '../Button/Button';
 
 type TSearchFormState = {
   query: string | null;
 };
 
-function SearchForm(props: TSearchFormProps) {
-  const [storedValue, setStoredValue] = useLocalStorage<string>('person');
+function SearchForm() {
+  const [storedValue, setValue] = useLocalStorage<string | null>('person');
+  const navigate = useNavigate();
   const [state, setState] = useState<TSearchFormState>({
     query: storedValue,
   });
@@ -20,24 +19,20 @@ function SearchForm(props: TSearchFormProps) {
     const element = event.target as HTMLInputElement;
     const value = element.value;
     setState({ query: value });
-    console.log(value);
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const { query } = state;
-
-    const { onQuerySubmit } = props;
-    if (query && query !== null) {
-      console.log('handleSubmit', query);
-      setStoredValue(query);
-      onQuerySubmit(query);
-    } else {
-      setStoredValue('');
-      onQuerySubmit('');
-    }
+    setValue(query);
+    setState({ query: '' });
+    navigate(`${query}`);
   };
-
+  useEffect(() => {
+    if (storedValue) {
+      navigate(`${storedValue}`);
+    }
+  }, []);
   return (
     <>
       <form className="input-block" onSubmit={handleSubmit}>
@@ -49,9 +44,7 @@ function SearchForm(props: TSearchFormProps) {
           name="query"
           onChange={handleInput}
         />
-        <button className="input-block__button" type="submit" role="search-btn">
-          Search
-        </button>
+        <Button className="input-block__button" type="submit" text="Search" role="search" />
       </form>
     </>
   );

@@ -1,0 +1,34 @@
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { TCard } from '../../types/types';
+
+type FavoritesState = {
+  favorites: TCard[];
+};
+
+const initialState: FavoritesState = {
+  favorites: [],
+};
+
+export const favoritesSlice = createSlice({
+  name: 'favoritesList',
+  initialState,
+  reducers: {
+    addFavorite: (state, action: PayloadAction<TCard>) => {
+      state.favorites = [...state.favorites, action.payload];
+    },
+    removeFavorite: (state, action: PayloadAction<number>) => {
+      state.favorites = [...state.favorites.filter(card => card.id !== action.payload)];
+    },
+    clearFavorites: state => {
+      console.log('====================================');
+      console.log('hey2');
+      console.log('====================================');
+      state.favorites = [];
+    },
+  },
+});
+
+export const { addFavorite, removeFavorite, clearFavorites } = favoritesSlice.actions;
+
+export default favoritesSlice.reducer;

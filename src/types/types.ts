@@ -1,4 +1,4 @@
-export type TFetchedCardResults = {
+export type TCard = {
   id: number;
   name: string;
   status: string;
@@ -21,14 +21,14 @@ export type TFetchedCardResults = {
   created: string;
 };
 
-export type TFetchedCard = {
+export type TCardResponse = {
   info: {
     count: number;
     pages: number;
     next: string;
     prev: null;
   };
-  results: TFetchedCardResults[];
+  results: TCard[];
 };
 
 export type TCardProps = {
@@ -45,4 +45,8 @@ export type Card = {
   species: string;
   gender: string;
   image: string;
+};
+
+export type TPerson = {
+  id: number;
 };
