@@ -5,7 +5,7 @@ import Header from './Header';
 import { BrowserRouter } from 'react-router-dom';
 import { store } from '../../redux/store';
 import { Provider } from 'react-redux';
-import { ThemeProvider} from '../../ContextProvider/ContextProvider';
+import { ThemeProvider } from '../../ContextProvider/ContextProvider';
 const Wrapper = ({ children }: { children: ReactNode }) => (
   <BrowserRouter>
     <Provider store={store}>
@@ -46,7 +46,6 @@ vi.mock('../Button/Button.tsx', () => {
     ),
   };
 });
-
 
 const mockToggleTheme = vi.fn();
 vi.mock('../../ContextProvider/ContextProvider.tsx', () => ({

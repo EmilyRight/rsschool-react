@@ -1,5 +1,7 @@
+
 import { useTheme } from '../../ContextProvider/ContextProvider';
 import './button.scss';
+
 type TButtonProps = {
   text: string;
   type?: 'button' | 'submit' | 'reset' | undefined;

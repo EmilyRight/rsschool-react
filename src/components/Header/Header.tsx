@@ -5,6 +5,7 @@ import Button from '../Button/Button';
 import SearchForm from '../SearchForm/SearchForm';
 import { useTheme } from '../../ContextProvider/ContextProvider';
 
+
 function Header() {
   const { theme, toggleTheme } = useTheme();
 

@@ -8,6 +8,8 @@ import { addDetailedCard } from '../../redux/slices/cardsSlice';
 import Loader from '../Loader/Loader';
 import { useTheme } from '../../ContextProvider/ContextProvider';
 
+
+
 export type TDetailedCardProps = {
   cardId: number;
 };

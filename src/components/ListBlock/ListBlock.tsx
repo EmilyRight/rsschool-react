@@ -3,9 +3,12 @@ import PersonCard from '../ListItem/ListItem';
 import { TCard } from '../../types/types';
 import { useTheme } from '../../ContextProvider/ContextProvider';
 
+
+
 type TListProps = {
   cardsList: TCard[] | undefined;
 };
+
 function List(props: TListProps) {
   const { cardsList } = props;
   const { theme } = useTheme();

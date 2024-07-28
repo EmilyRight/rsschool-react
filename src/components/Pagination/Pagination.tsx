@@ -5,6 +5,8 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { useTheme } from '../../ContextProvider/ContextProvider';
 
+
+
 type TPaginationState = {
   isRightBtnDisabled: boolean;
   isLeftBtnDisabled: boolean;
