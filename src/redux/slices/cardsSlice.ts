@@ -17,7 +17,7 @@ export const detailedCardSlice = createSlice({
       state.detailedCard = action.payload;
     },
 
-    removeDetailedCard: state => {
+    removeDetailedCard: (state) => {
       state.detailedCard = {};
     },
   },

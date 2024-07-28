@@ -10,9 +10,11 @@ import { addPage } from '../redux/slices/currentPageSlice.ts';
 import useLocalStorage from '../hooks/localStorage.tsx';
 import { RootState } from '../redux/store.ts';
 import Flyout from '../components/FlyOut/Flyout.tsx';
+import { useTheme } from '../ContextProvider/ContextProvider.tsx';
 
 function MainPage() {
   const dispatch = useDispatch();
+  const { theme } = useTheme();
   const { detailedCard } = useSelector((state: RootState) => state.detailedCard);
   const [searchParams] = useSearchParams();
   const page = searchParams.get('page') || '1';
@@ -61,7 +63,9 @@ function MainPage() {
   const cardsList = (id ? [personData] : allPersonsData?.results)?.filter(card => !!card);
 
   return (
-    <div className={`page ${Object.keys(detailedCard).length !== 0 ? 'no-scroll' : ''}`}>
+    <div
+      className={`page ${Object.keys(detailedCard).length !== 0 ? 'no-scroll' : ''} page_${theme}`}
+    >
       <Header />
       <main
         className={`page__main main ${Object.keys(detailedCard).length !== 0 ? 'no-scroll' : ''}`}

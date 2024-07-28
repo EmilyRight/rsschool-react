@@ -1,9 +1,9 @@
-
 import { useEffect, useState } from 'react';
 import './pagination.scss';
 import { useSearchParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
+import { useTheme } from '../../ContextProvider/ContextProvider';
 
 type TPaginationState = {
   isRightBtnDisabled: boolean;
@@ -11,6 +11,7 @@ type TPaginationState = {
 };
 
 function Pagination() {
+  const { theme } = useTheme();
   const { pages, currentPage } = useSelector((state: RootState) => state.currentPage);
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -47,7 +48,7 @@ function Pagination() {
       <div className="pagination__buttons">
         <button
           type="button"
-          className={`pagination__btn btn-left ${state.isLeftBtnDisabled ? 'disabled' : ''}`}
+          className={`pagination__btn btn-left btn_${theme} ${state.isLeftBtnDisabled ? 'disabled' : ''}`}
           disabled={state.isLeftBtnDisabled}
           onClick={handlePrev}
         >
@@ -55,7 +56,7 @@ function Pagination() {
         </button>
 
         <button
-          className={`pagination__btn btn-right ${state.isRightBtnDisabled ? 'disabled' : ''}`}
+          className={`pagination__btn btn-right btn_${theme} ${state.isRightBtnDisabled ? 'disabled' : ''}`}
           onClick={handleNext}
           disabled={state.isRightBtnDisabled}
         >

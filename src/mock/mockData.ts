@@ -711,4 +711,28 @@ const testCards = [
   },
 ];
 
-export { mockData, testCards };
+const testCard = {
+  id: 4,
+  name: 'Beth Smith',
+  status: 'Alive',
+  species: 'Human',
+  type: '',
+  gender: 'Female',
+  origin: {
+    name: 'Earth (Replacement Dimension)',
+    url: 'https://rickandmortyapi.com/api/location/20',
+  },
+  location: {
+    name: 'Earth (Replacement Dimension)',
+    url: 'https://rickandmortyapi.com/api/location/20',
+  },
+  image: 'https://rickandmortyapi.com/api/character/avatar/4.jpeg',
+  episode: [
+    'https://rickandmortyapi.com/api/episode/6',
+    'https://rickandmortyapi.com/api/episode/7',
+  ],
+  url: 'https://rickandmortyapi.com/api/character/4',
+  created: '2017-11-04T19:22:43.665Z',
+};
+
+export { mockData, testCards, testCard };

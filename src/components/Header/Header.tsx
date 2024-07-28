@@ -1,28 +1,25 @@
 import './header.scss';
 import Pagination from '../Pagination/Pagination';
 import Button from '../Button/Button';
-import { useState } from 'react';
+
 import SearchForm from '../SearchForm/SearchForm';
+import { useTheme } from '../../ContextProvider/ContextProvider';
 
-type THeaderState = {
-  hasError: boolean;
-};
 function Header() {
-  const [state, setState] = useState<THeaderState>({
-    hasError: false,
-  });
-
-  if (state.hasError) {
-    throw new Error('test error');
-  }
-  const throwErrorFunction = () => {
-    setState(prevState => ({ ...prevState, hasError: true }));
-  };
+  const { theme, toggleTheme } = useTheme();
 
   return (
-    <header className="header">
-      <div className="container">
-        <Button text="Throw Error" action={throwErrorFunction} className="error-button" />
+    <header className="header" role="header">
+      <div className="header__container container">
+        <div className="header__theme-controls theme">
+          <Button
+            text={theme === 'dark' ? 'light' : 'dark'}
+            action={toggleTheme}
+            className="theme__btn"
+            role="theme"
+          />
+          <div className="theme__text">Switch theme</div>
+        </div>
         <div className="header__input-block">
           <SearchForm />
         </div>

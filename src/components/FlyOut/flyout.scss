@@ -15,6 +15,9 @@
   &.visible {
     bottom: 0;
   }
+  @media (min-width: 780px) {
+    width: 30%;
+  }
 }
 .flyout {
 }
@@ -26,6 +29,12 @@
 .flyout__btns {
   display: flex;
   gap: 1rem;
+  .btn_light {
+    background-color: #fff;
+  }
+  .btn_dark {
+    background-color: rgb(250, 195, 15);
+  }
 }
 .btn-list {
 }

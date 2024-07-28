@@ -1,68 +1,65 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { ReactNode } from 'react';
+import { render, fireEvent, screen, waitFor } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
 import SearchForm from './SearchForm';
-import useLocalStorage from '../../hooks/localStorage';
+import { ThemeProvider } from '../../ContextProvider/ContextProvider';
+import { vi } from 'vitest';
 
-vi.mock('../../hooks/localStorage.tsx');
+const Wrapper = ({ children }: { children: ReactNode }) => (
+  <BrowserRouter>
+    <ThemeProvider>{children}</ThemeProvider>
+  </BrowserRouter>
+);
 
-describe('SearchForm component', () => {
-  let localStorageMock: Record<string, string> = {};
+describe('SearchForm', () => {
+
+  let mockLocalStorage: {
+    getItem: ReturnType<typeof vi.fn>;
+    setItem: ReturnType<typeof vi.fn>;
+    removeItem: ReturnType<typeof vi.fn>;
+    clear: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
-    localStorageMock = {};
-    vi.spyOn(window.localStorage, 'getItem').mockImplementation(
-      key => localStorageMock[key] || null,
-    );
-    vi.spyOn(window.localStorage, 'setItem').mockImplementation((key, value) => {
-      localStorageMock[key] = value;
-    });
+    mockLocalStorage = {
+      getItem: vi.fn(),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+      clear: vi.fn(),
+    };
 
+    Object.defineProperty(window, 'localStorage', {
+      value: mockLocalStorage,
+      writable: true,
+    });
+  });
+
+  afterEach(() => {
     vi.clearAllMocks();
   });
 
-  it('saves the entered value to local storage upon clicking the Search button', () => {
-    const onQuerySubmit = vi.fn();
+  test('saves entered value to local storage when Search button is clicked', async () => {
+    render(<SearchForm />, { wrapper: Wrapper });
 
-    (useLocalStorage as jest.Mock).mockImplementation(() => {
-      let value = '';
-      return [
-        value,
-        (newValue: string) => {
-          value = newValue;
-          localStorageMock['person'] = value;
-        },
-      ];
+    const input = screen.getByPlaceholderText('Enter number from 1 to 826') as HTMLInputElement;
+    const button = screen.getByText(/Search/i);
+
+    fireEvent.change(input, { target: { value: '123' } });
+    fireEvent.click(button);
+
+    await waitFor(() => {
+      expect(localStorage.setItem).toHaveBeenCalledWith('person', JSON.stringify('123'));
     });
-
-    render(<SearchForm onQuerySubmit={onQuerySubmit} />);
-
-    const inputElement = screen.getByPlaceholderText(
-      'Enter number from 1 to 826',
-    ) as HTMLInputElement;
-    const buttonElement = screen.getByRole('search-btn');
-
-    userEvent.type(inputElement, '123');
-    screen.debug();
-    fireEvent.click(buttonElement);
-    screen.debug();
-
-    expect(localStorageMock['person']).toEqual('123');
-    screen.debug();
-
-    expect(onQuerySubmit).toHaveBeenCalledWith('123');
   });
 
-  it('retrieves the value from local storage upon mounting', () => {
-    const onQuerySubmit = vi.fn();
+  test('retrieves value from local storage upon mounting', async () => {
+    mockLocalStorage.getItem.mockReturnValue('456');
 
-    (useLocalStorage as jest.Mock).mockImplementation(() => ['123', vi.fn()]);
+    render(<SearchForm />, { wrapper: Wrapper });
 
-    render(<SearchForm onQuerySubmit={onQuerySubmit} />);
-
-    const inputElement = screen.getByPlaceholderText(
+    const input = (await screen.findByPlaceholderText(
       'Enter number from 1 to 826',
-    ) as HTMLInputElement;
-    expect(inputElement.value).toBe('123');
+    )) as HTMLInputElement;
+    expect(input.value).toBe('456');
   });
 });

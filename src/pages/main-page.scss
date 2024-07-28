@@ -1,9 +1,17 @@
 .page {
-  background-color: #336f4196;
   width: 100%;
   min-height: 100vh;
   position: relative;
-  // padding-bottom: 8rem;
+  overflow: hidden;
+  &_light {
+    background-color: #336f4196;
+    color: black;
+  }
+  &_dark {
+    background-color: black;
+    color: beige;
+  }
+
   &.no-scroll {
     max-height: 100vh;
     overflow: hidden;
@@ -16,7 +24,8 @@
   justify-content: space-between;
 
   margin: 0 auto;
-  padding-top: 25rem;
+  padding-top: 17rem;
+  padding-bottom: 3rem;
   @media (min-width: 780px) {
     max-width: 100%;
   }

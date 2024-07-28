@@ -1,28 +1,28 @@
-/* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, ReactNode } from 'react';
+import { createContext, useState, useContext, ReactNode, FC } from 'react';
 
-interface ContextValue {
-  toggleSingleCard: () => void;
+interface ThemeContextType {
+  theme: string;
+  toggleTheme: () => void;
 }
 
-const AppContext = createContext<ContextValue | undefined>(undefined);
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const useAppContext = (): ContextValue => {
-  const context = useContext(AppContext);
+const ThemeProvider: FC<{ children: ReactNode }> = ({ children }) => {
+  const [theme, setTheme] = useState<string>('light');
+
+  const toggleTheme = () => {
+    setTheme(prevTheme => (prevTheme === 'dark' ? 'light' : 'dark'));
+  };
+
+  return <ThemeContext.Provider value={{ theme, toggleTheme }}>{children}</ThemeContext.Provider>;
+};
+
+const useTheme = () => {
+  const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error('useAppContext must be used within an AppProvider');
+    throw new Error('useTheme must be used within a ThemeProvider');
   }
   return context;
 };
 
-interface AppProviderProps {
-  children: ReactNode;
-}
-
-export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
-  const toggleSingleCard = () => {
-    console.log('Card toggled');
-  };
-
-  return <AppContext.Provider value={{ toggleSingleCard }}>{children}</AppContext.Provider>;
-};
+export { ThemeProvider, useTheme };

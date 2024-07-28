@@ -1,7 +1,8 @@
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import './search-form.scss';
 import useLocalStorage from '../../hooks/localStorage';
 import { useNavigate } from 'react-router';
+import Button from '../Button/Button';
 
 type TSearchFormState = {
   query: string | null;
@@ -27,7 +28,11 @@ function SearchForm() {
     setState({ query: '' });
     navigate(`${query}`);
   };
-
+  useEffect(() => {
+    if (storedValue) {
+      navigate(`${storedValue}`);
+    }
+  }, []);
   return (
     <>
       <form className="input-block" onSubmit={handleSubmit}>
@@ -39,9 +44,7 @@ function SearchForm() {
           name="query"
           onChange={handleInput}
         />
-        <button className="input-block__button" type="submit" role="search-btn">
-          Search
-        </button>
+        <Button className="input-block__button" type="submit" text="Search" role="search" />
       </form>
     </>
   );

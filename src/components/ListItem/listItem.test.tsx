@@ -1,48 +1,80 @@
-import '@testing-library/jest-dom';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { ReactNode } from 'react';
+import { render, screen} from '@testing-library/react';
+import { Provider } from 'react-redux';
 
-import { describe, it, expect, vi } from 'vitest';
-import PersonCard from '../ListItem/ListItem';
+import { vi, it, expect, describe, beforeEach } from 'vitest';
+import PersonCard, { TDetailedCardProps } from './ListItem';
+import { ThemeProvider } from '../../ContextProvider/ContextProvider';
+import { BrowserRouter } from 'react-router-dom';
+import { store } from '../../redux/store';
+import { testCard } from '../../mock/mockData';
+import { useGetPersonByIdQuery } from '../../redux/services/api';
 
-const cardData = {
-  id: 1,
-  name: 'Rick Sanchez',
-  species: 'Human',
-  gender: 'Male',
-  image: 'https://rickandmortyapi.com/api/character/avatar/1.jpeg',
-  openCard: vi.fn(),
-};
+const Wrapper = ({ children }: { children: ReactNode }) => (
+  <BrowserRouter>
+    <Provider store={store}>
+      <ThemeProvider>{children}</ThemeProvider>
+    </Provider>
+  </BrowserRouter>
+);
+
+vi.mock('../../redux/services/api', async () => {
+  const actual = await vi.importActual('../../redux/services/api');
+  return {
+    ...actual,
+    useGetPersonByIdQuery: vi.fn(), //
+  };
+});
+
+const mockUseGetPersonByIdQuery = useGetPersonByIdQuery as unknown as ReturnType<typeof vi.fn>;
 
 describe('PersonCard Component', () => {
-  it('renders the card data', () => {
-    render(
-      <Router>
-        <PersonCard {...cardData} />
-      </Router>,
-    );
+  beforeEach(() => {
+    mockUseGetPersonByIdQuery.mockReturnValue({
+      data: testCard,
+      isLoading: false,
+    });
+  });
 
-    expect(screen.getByText('Rick Sanchez')).toBeInTheDocument();
-    expect(screen.getByText('Human')).toBeInTheDocument();
-    expect(screen.getByText('Male')).toBeInTheDocument();
-    expect(screen.getByRole('img')).toHaveAttribute(
+  afterEach(() => {
+    mockUseGetPersonByIdQuery.mockRestore();
+  });
+
+  it('displays loading state initially', () => {
+    mockUseGetPersonByIdQuery.mockReturnValue({
+      data: null,
+      isLoading: true,
+      isSuccess: false,
+    });
+
+    render(<PersonCard cardId={1} />, { wrapper: Wrapper });
+    expect(screen.getByRole('loader')).toBeInTheDocument();
+  });
+
+  it('renders the relevant card data', () => {
+    const props: TDetailedCardProps = { cardId: 4 };
+    mockUseGetPersonByIdQuery.mockReturnValue({
+      data: testCard,
+      isLoading: false,
+      isSuccess: false,
+    });
+    render(<PersonCard cardId={props.cardId} />, { wrapper: Wrapper });
+
+    const imgElement = screen.getByAltText('image');
+    expect(imgElement).toHaveAttribute(
       'src',
-      'https://rickandmortyapi.com/api/character/avatar/1.jpeg',
+      'https://rickandmortyapi.com/api/character/avatar/4.jpeg',
     );
+    expect(screen.getByText('Beth Smith')).toBeInTheDocument();
+    expect(screen.getByText('Female')).toBeInTheDocument();
+    expect(screen.getByText('Human')).toBeInTheDocument();
   });
 
-  it('opens detailed card component on click', () => {
-    render(
-      <Router>
-        <PersonCard {...cardData} />
-      </Router>,
-    );
-    const linkElement = screen.getByRole('link');
-    fireEvent.click(linkElement);
-    expect(cardData.openCard).toHaveBeenCalled();
+  it('triggers an API call to fetch detailed information', () => {
+    const props: TDetailedCardProps = { cardId: 1 };
+
+    render(<PersonCard cardId={props.cardId} />, { wrapper: Wrapper });
+
+    expect(useGetPersonByIdQuery).toHaveBeenCalledWith('1');
   });
-
-  // it('triggers an additional API call on click to fetch detailed information', async () => {
-
-  // });
 });
