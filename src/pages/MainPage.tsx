@@ -69,6 +69,7 @@ function MainPage() {
       <Header />
       <main
         className={`page__main main ${Object.keys(detailedCard).length !== 0 ? 'no-scroll' : ''}`}
+        role="main"
       >
         <div className="container">
           <div className="main__content cards">

@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router';
 import './error-page.scss';
 import { MAIN_PAGE_PATH } from '../../constants/constants';
+
 function ErrorPage() {
   const navigate = useNavigate();
+  
   const handleBack = () => {
     navigate(`${MAIN_PAGE_PATH}`);
   };

@@ -18,6 +18,9 @@
   align-items: center;
   gap: 2rem;
   padding: 2rem;
+  &_dark {
+    color: #000;
+  }
   .card-content {
     display: flex;
     flex-direction: column;

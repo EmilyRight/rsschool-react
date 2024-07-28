@@ -6,10 +6,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { removeDetailedCard } from '../../redux/slices/cardsSlice';
 import { useEffect } from 'react';
+import { useTheme } from '../../ContextProvider/ContextProvider';
 
 function Card() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { theme } = useTheme();
   const [searchParams] = useSearchParams();
   const page = searchParams.get('page');
 
@@ -19,7 +21,6 @@ function Card() {
   const handleClose = async () => {
     const newUrl = `${MAIN_PAGE_PATH}/${id ? id : ''}${page ? `?page=${page}` : ''}`;
     navigate(newUrl);
-    console.log('New URL in handleClose Card:', newUrl);
     dispatch(removeDetailedCard());
   };
 
@@ -28,7 +29,7 @@ function Card() {
   return (
     detailedCard && (
       <div className="modal">
-        <div className="cards__card card">
+        <div className={`cards__card card card_${theme}`} role="card">
           <div className="card__content card-content">
             <div className="card-content__image">
               <img src={image} alt="" />

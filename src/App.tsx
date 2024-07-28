@@ -16,7 +16,7 @@ function App() {
           </ErrorBoundary>
         }
       >
-        <Route path={`${MAIN_PAGE_PATH}/:id`} element={<Card />} />
+        <Route path={`:id`} element={<Card />} />
         <Route path={`${MAIN_PAGE_PATH}/`} element={<Card />} />
       </Route>
       <Route path="*" element={<ErrorPage />} />
