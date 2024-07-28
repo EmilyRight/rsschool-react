@@ -35,23 +35,15 @@ function PersonCard(props: TDetailedCardProps) {
     }
   };
   const showDetails = () => {
-    console.log('====================================');
-    console.log('hey');
-    console.log('====================================');
     if (data) {
       dispatch(addDetailedCard(data));
     }
   };
 
   useEffect(() => {
-    console.log('render');
-
     setChecked(favorites.some(fav => fav.id === cardId));
   }, [favorites, checked]);
 
-  // if (!data) {
-  //   return <div>No data available</div>;
-  // }
 
   return isLoading ? (
     <Loader />

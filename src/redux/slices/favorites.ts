@@ -21,9 +21,6 @@ export const favoritesSlice = createSlice({
       state.favorites = [...state.favorites.filter(card => card.id !== action.payload)];
     },
     clearFavorites: state => {
-      console.log('====================================');
-      console.log('hey2');
-      console.log('====================================');
       state.favorites = [];
     },
   },
