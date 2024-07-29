@@ -7,14 +7,17 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { store } from './redux/store.ts';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <Provider store={store}>
-        <ThemeProvider>
-          <App />
-        </ThemeProvider>
-      </Provider>
-    </BrowserRouter>
-  </React.StrictMode>,
-);
+export function Main() {
+  return (
+    <React.StrictMode>
+      <BrowserRouter>
+        <Provider store={store}>
+          <ThemeProvider>
+            <App />
+          </ThemeProvider>
+        </Provider>
+      </BrowserRouter>
+    </React.StrictMode>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')!).render(<Main />);

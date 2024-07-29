@@ -16,8 +16,8 @@ const Wrapper = ({ children }: { children: ReactNode }) => (
   </BrowserRouter>
 );
 
-vi.mock('react-redux', async importOriginal => {
-  const actualModule = await importOriginal();
+vi.mock('react-redux', async () => {
+  const actualModule = await vi.importActual<typeof import('react-redux')>('react-redux');
   return {
     ...actualModule,
     useDispatch: vi.fn(),
