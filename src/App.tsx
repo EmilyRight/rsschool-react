@@ -7,20 +7,22 @@ import Card from './components/Card/Card';
 
 function App() {
   return (
-    <Routes>
-      <Route
-        path={`${MAIN_PAGE_PATH}/`}
-        element={
-          <ErrorBoundary>
-            <MainPage />
-          </ErrorBoundary>
-        }
-      >
-        <Route path={`:id`} element={<Card />} />
-        <Route path={`${MAIN_PAGE_PATH}/`} element={<Card />} />
-      </Route>
-      <Route path="*" element={<ErrorPage />} />
-    </Routes>
+    <div data-testid="app-root">
+      <Routes>
+        <Route
+          path={`${MAIN_PAGE_PATH}/`}
+          element={
+            <ErrorBoundary>
+              <MainPage />
+            </ErrorBoundary>
+          }
+        >
+          <Route path={`:id`} element={<Card />} />
+          <Route path={`${MAIN_PAGE_PATH}/`} element={<Card />} />
+        </Route>
+        <Route path="*" element={<ErrorPage />} />
+      </Routes>
+    </div>
   );
 }
 export default App;
