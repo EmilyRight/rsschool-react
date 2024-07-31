@@ -71,7 +71,6 @@ describe('Flyout', () => {
     const downloadLink = screen.getByText('Download');
 
     fireEvent.click(downloadLink);
-    // После клика состояние должно обновиться и содержать url для загрузки
     expect(screen.getByText('Download')).toHaveAttribute('href', 'blob:url');
   });
 
