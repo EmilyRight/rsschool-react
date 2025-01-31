@@ -1,5 +1,5 @@
 .item {
-  border: 2px solid rgba(99, 100, 84, 0.288);
+  border-radius: 20px;
   padding: 1.5rem;
   max-width: calc(100% / 2 - 1rem);
   background-color: #fff;
@@ -10,6 +10,8 @@
   .item__image {
     max-width: 100%;
     margin-bottom: 1rem;
+    border-radius: 10px;
+    overflow: hidden;
     img {
       max-width: 100%;
       display: block;
@@ -17,6 +19,7 @@
   }
   .item__name {
     font-size: 1.8rem;
+    font-weight: 700;
   }
   .item__gender {
   }

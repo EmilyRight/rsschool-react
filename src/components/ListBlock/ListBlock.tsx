@@ -10,6 +10,7 @@ type TListProps = {
 class List extends React.Component<TListProps> {
   render() {
     const { cards } = this.props;
+    // const { results } = cards;
     return (
       <div className="list-block list">
         {cards?.map(({ id, name, image, species, gender }) => (
