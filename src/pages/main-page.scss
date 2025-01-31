@@ -1,9 +1,9 @@
 .page {
-  background-color: #336f4196;
+  background-color: #c3a8bb81;
   width: 100%;
   min-height: 100vh;
-  padding-top: 8rem;
-  padding-bottom: 8rem;
+  padding-top: 6rem;
+  padding-bottom: 6rem;
 }
 
 .main {
@@ -15,7 +15,7 @@
   &__input-block {
     width: 80%;
     @media (min-width: 780px) {
-      width: 50%;
+      width: 89%;
     }
   }
   &__error-btn {
@@ -25,17 +25,22 @@
     font-size: 1rem;
     font-weight: 500;
     font-family: inherit;
-    background-color: #ffffff;
+    background-color: #6c0360;
+    color: #fbf9fb;
     cursor: pointer;
     transition: 0.4s;
     display: inline;
     max-width: fit-content;
     margin-bottom: 2rem;
+    position: absolute;
+    position: fixed;
+    bottom: 4rem;
+    left: 20px;
     @media (min-width: 780px) {
       font-size: 2.2rem;
     }
     &:hover {
-      box-shadow: 0 0 15px 2px rgb(255, 255, 255);
+      box-shadow: 0 0 15px 2px rgb(36, 36, 36);
     }
   }
   &__list {
