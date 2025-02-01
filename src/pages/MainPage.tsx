@@ -2,14 +2,14 @@ import React from 'react';
 import './main-page.scss';
 import SearchForm from '../components/SearchForm/SearchForm';
 import List from '../components/ListBlock/ListBlock';
-import { TFetchedCardResults } from '../types/types';
+import { TFetchedCardResults, TFetchedCards } from '../types/types';
 import Loader from '../components/Loader/Loader';
 import { fetchItems } from '../api/api';
 
 const pageParam = '?page=1';
 
 type TMainPageState = {
-  cardsList: TFetchedCardResults[] | null;
+  cardsList: TFetchedCards[] | null;
   localQuery: string;
   hasError: boolean;
   isLoading: boolean;
@@ -34,8 +34,8 @@ class MainPage extends React.Component<Record<string, never>, TMainPageState> {
     this.setState({ isLoading: true });
 
     try {
-      const result = await fetchItems(param);
-      const data = result.results;
+      const results: TFetchedCardResults = await fetchItems(param);
+      const data = results.results;
       this.setState({ cardsList: data, isLoading: false });
     } catch (error) {
       this.setState({ hasError: true, isLoading: false });
@@ -63,14 +63,14 @@ class MainPage extends React.Component<Record<string, never>, TMainPageState> {
     }
 
     return (
-      <main className="page__main main">
-        <button type="button" className="main__error-btn" onClick={this.throwErrorFunction}>
+      <main className='page__main main'>
+        <button type='button' className='main__error-btn' onClick={this.throwErrorFunction}>
           Throw Error
         </button>
-        <div className="main__input-block">
+        <div className='main__input-block'>
           <SearchForm onQuerySubmit={this.handleSubmit} />
         </div>
-        <div className="main__list">
+        <div className='main__list'>
           {isLoading ? <Loader /> : <List cards={this.state.cardsList} />}
         </div>
       </main>

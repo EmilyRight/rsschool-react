@@ -36,16 +36,16 @@ class SearchForm extends React.Component<TSearchFormProps, TSearchFormState> {
 
     return (
       <>
-        <form className="input-block" onSubmit={this.handleSubmit}>
+        <form className='input-block' onSubmit={this.handleSubmit}>
           <input
-            type="text"
-            className="input-block__input"
-            placeholder="Enter the name"
+            type='text'
+            className='input-block__input'
+            placeholder='Enter the name'
             value={query}
-            name="query"
+            name='query'
             onChange={this.handleInput}
           />
-          <button className="input-block__button" type="submit">
+          <button className='input-block__button' type='submit'>
             Search
           </button>
         </form>
