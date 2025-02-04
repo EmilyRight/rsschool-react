@@ -1,1 +1,1 @@
-npx lint-staged || echo "Предупреждение: Линтинг не прошел. Проверьте код!"
+npx lint-staged

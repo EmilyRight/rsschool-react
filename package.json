@@ -12,8 +12,8 @@
     "format:fix": "prettier --write ."
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "eslint",
-    "*.{css,scss,md}": "prettier --check"
+    "*.{js,jsx,ts,tsx}": "eslint --fix",
+    "*.{css,scss,md}": "prettier --write"
   },
   "dependencies": {
     "react": "^18.3.1",
