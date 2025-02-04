@@ -55,7 +55,7 @@ class MainPage extends React.Component<Record<string, never>, TMainPageState> {
     this.handleFetch(`?name=${userQuery}`, userQuery);
   };
 
-  throwErrorFunction1 = () => {
+  throwErrorFunction = () => {
     this.setState({ hasError: true, isLoading: false });
   };
 

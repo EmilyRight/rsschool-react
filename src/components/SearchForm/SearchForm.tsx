@@ -1,4 +1,5 @@
 import React, { ChangeEvent, FormEvent } from 'react';
+
 import './search-form.scss';
 
 type TSearchFormProps = {
