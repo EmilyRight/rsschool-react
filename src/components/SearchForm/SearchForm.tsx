@@ -27,7 +27,6 @@ class SearchForm extends React.Component<TSearchFormProps, TSearchFormState> {
     event.preventDefault();
     const { query } = this.state;
     const { onQuerySubmit } = this.props;
-    localStorage.setItem('person', query);
     onQuerySubmit(query);
   };
 

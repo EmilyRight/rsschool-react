@@ -27,19 +27,22 @@ class MainPage extends React.Component<Record<string, never>, TMainPageState> {
   }
 
   componentDidMount(): void {
-    this.handleFetch(`?name=${this.state.localQuery}`);
+    this.handleFetch(`?name=${this.state.localQuery}`, this.state.localQuery);
   }
 
-  handleFetch = async (param: string | undefined) => {
+  handleFetch = async (param: string | undefined, person: string | undefined) => {
     this.setState({ isLoading: true });
 
+    const results: TFetchedCardResults = await fetchItems(param);
     try {
-      const results: TFetchedCardResults = await fetchItems(param);
-      const data = results.results;
-      this.setState({ cardsList: data, isLoading: false });
+      if (param) {
+        const data = results.results;
+        this.setState({ cardsList: data, isLoading: false });
+        if (person) localStorage.setItem('person', person);
+      }
     } catch (error) {
       this.setState({ hasError: true, isLoading: false });
-      console.log(error);
+      console.log(results);
     }
   };
 
@@ -49,7 +52,7 @@ class MainPage extends React.Component<Record<string, never>, TMainPageState> {
       this.handleFetch(pageParam);
     }
 
-    this.handleFetch(`?name=${userQuery}`);
+    this.handleFetch(`?name=${userQuery}`, userQuery);
   };
 
   throwErrorFunction = () => {
