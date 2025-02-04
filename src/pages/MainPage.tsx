@@ -35,8 +35,8 @@ class MainPage extends React.Component<Record<string, never>, TMainPageState> {
 
     const results: TFetchedCardResults = await fetchItems(param);
     try {
-          if (param) {
-           const data = results.results;
+      if (param) {
+        const data = results.results;
         this.setState({ cardsList: data, isLoading: false });
         if (person) localStorage.setItem('person', person);
       }
@@ -55,7 +55,7 @@ class MainPage extends React.Component<Record<string, never>, TMainPageState> {
     this.handleFetch(`?name=${userQuery}`, userQuery);
   };
 
-  throwErrorFunction = () => {
+  throwErrorFunction1 = () => {
     this.setState({ hasError: true, isLoading: false });
   };
 
@@ -71,10 +71,10 @@ class MainPage extends React.Component<Record<string, never>, TMainPageState> {
           Throw Error
         </button>
         <div className='main__input-block'>
-            <SearchForm onQuerySubmit={this.handleSubmit} />
+          <SearchForm onQuerySubmit={this.handleSubmit} />
         </div>
         <div className='main__list'>
-              { isLoading ? <Loader /> : <List cards={this.state.cardsList} />}
+          {isLoading ? <Loader /> : <List cards={this.state.cardsList} />}
         </div>
       </main>
     );
