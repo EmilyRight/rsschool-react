@@ -12,6 +12,7 @@
     "format:fix": "prettier --write ."
   },
   "lint-staged": {
+    "!public/**/*": [],
     "*.{js,jsx,ts,tsx}": "eslint --fix",
     "*.{css,scss,md}": "prettier --write"
   },

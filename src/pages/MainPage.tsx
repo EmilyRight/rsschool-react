@@ -25,11 +25,6 @@ class MainPage extends React.Component<Record<string, never>, TMainPageState> {
       isLoading: false,
     };
   }
-
-  componentDidMount(): void {
-    this.handleFetch(`?name=${this.state.localQuery}`, this.state.localQuery);
-  }
-
   handleFetch = async (param: string | undefined, person?: string | undefined) => {
     this.setState({ isLoading: true });
 
@@ -45,6 +40,10 @@ class MainPage extends React.Component<Record<string, never>, TMainPageState> {
       console.log(results);
     }
   };
+
+  componentDidMount(): void {
+    this.handleFetch(`?name=${this.state.localQuery}`, this.state.localQuery);
+  }
 
   handleSubmit = (query?: string | undefined) => {
     const userQuery = query?.trim().replace(/\s/, '').toLowerCase();
