@@ -5,5 +5,6 @@ export const fetchItems = async <T>(searchTerm: string = ''): Promise<T> => {
   if (!response.ok) {
     throw new Error('Failed to fetch');
   }
+
   return response.json() as T;
 };
