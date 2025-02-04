@@ -14,7 +14,7 @@
   "lint-staged": {
     "!public/**/*": [],
     "*.{js,jsx,ts,tsx}": "eslint --fix",
-    "*.{css,scss,md}": "prettier --write"
+    "*.{css,scss,md,js,jsx,ts,tsx}": "prettier --write"
   },
   "dependencies": {
     "react": "^18.3.1",

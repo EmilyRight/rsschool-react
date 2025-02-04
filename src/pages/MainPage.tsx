@@ -13,6 +13,7 @@ type TMainPageState = {
   localQuery: string;
   hasError: boolean;
   isLoading: boolean;
+  isNotFound: boolean;
 };
 
 class MainPage extends React.Component<Record<string, never>, TMainPageState> {
@@ -23,21 +24,20 @@ class MainPage extends React.Component<Record<string, never>, TMainPageState> {
       localQuery: localStorage.getItem('person') || '',
       hasError: false,
       isLoading: false,
+      isNotFound: false,
     };
   }
   handleFetch = async (param: string | undefined, person?: string | undefined) => {
-    this.setState({ isLoading: true });
-
-    const results: TFetchedCardResults = await fetchItems(param);
+    this.setState({ isLoading: true, isNotFound: false });
     try {
+      const results: TFetchedCardResults = await fetchItems(param);
       if (param) {
         const data = results.results;
         this.setState({ cardsList: data, isLoading: false });
         if (person) localStorage.setItem('person', person);
       }
     } catch (error) {
-      this.setState({ hasError: true, isLoading: false });
-      console.log(results);
+      this.setState({ isNotFound: true, isLoading: false });
     }
   };
 
@@ -59,7 +59,7 @@ class MainPage extends React.Component<Record<string, never>, TMainPageState> {
   };
 
   render() {
-    const { isLoading, hasError } = this.state;
+    const { isLoading, hasError, isNotFound } = this.state;
     if (hasError) {
       throw new Error('Test error');
     }
@@ -73,7 +73,13 @@ class MainPage extends React.Component<Record<string, never>, TMainPageState> {
           <SearchForm onQuerySubmit={this.handleSubmit} />
         </div>
         <div className='main__list'>
-          {isLoading ? <Loader /> : <List cards={this.state.cardsList} />}
+          {isLoading && !isNotFound ? (
+            <Loader />
+          ) : isNotFound && !isLoading ? (
+            <div className='empty'> There's nothing here :(</div>
+          ) : (
+            <List cards={this.state.cardsList} />
+          )}
         </div>
       </main>
     );
