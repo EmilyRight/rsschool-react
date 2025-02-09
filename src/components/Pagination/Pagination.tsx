@@ -7,23 +7,20 @@ type TPageParam = {
 type TPaginationProps = {
   pages: number;
   isNewSearch: boolean;
-  onTogglePage: (page: string) => void;
   setSearchParams: (param: TPageParam) => void;
 };
 
-function Pagination({ pages, isNewSearch, onTogglePage, setSearchParams }: TPaginationProps) {
+function Pagination({ pages, isNewSearch, setSearchParams }: TPaginationProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [isRightBtnDisabled, setIsRightBtnDisabled] = useState(currentPage === pages);
   const [isLeftBtnDisabled, setIsLeftBtnDisabled] = useState(currentPage === 1);
 
-  const handleIncreasePage = () => {
+  const handleNextPage = () => {
     setCurrentPage(prev => prev + 1);
-    onTogglePage(`${currentPage}`);
   };
 
   const handlePrevPage = () => {
     setCurrentPage(prev => prev - 1);
-    onTogglePage(`${currentPage}`);
   };
 
   const setParams = (page: string) => {
@@ -32,10 +29,13 @@ function Pagination({ pages, isNewSearch, onTogglePage, setSearchParams }: TPagi
 
   useEffect(() => {
     setParams(String(currentPage));
-    if (isNewSearch) setCurrentPage(1);
     setIsRightBtnDisabled(currentPage === pages);
     setIsLeftBtnDisabled(currentPage === 1);
   }, [currentPage, pages]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [isNewSearch]);
 
   return (
     <div className="pagination">
@@ -58,7 +58,7 @@ function Pagination({ pages, isNewSearch, onTogglePage, setSearchParams }: TPagi
         <button
           className={`pagination__btn btn-right ${isRightBtnDisabled ? 'disabled' : ''} }`}
           role="next"
-          onClick={handleIncreasePage}
+          onClick={handleNextPage}
           disabled={isRightBtnDisabled}
         >
           {'>>'}

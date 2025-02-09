@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import './card.scss';
-import { TFetchedCards } from '../../types/types';
-import { useNavigate, useParams } from 'react-router';
-import { fetchItems } from '../../api/api';
+import { OutletContextType, TFetchedCards } from '../../types/types';
+import { useNavigate, useOutletContext, useParams } from 'react-router';
 import Loader from '../Loader/Loader';
 import { MAIN_PAGE_PATH } from '../../constants/constants';
 import { useSearchParams } from 'react-router-dom';
@@ -12,13 +11,14 @@ type TCardParams = {
 };
 
 function Card() {
+  const { card, isCardOpened } = useOutletContext<OutletContextType>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { id } = useParams<TCardParams>();
   const page = searchParams.get('page') || '1';
-  const [isLoading, setIsLoading] = useState(false);
-  const [detail, setDetail] = useState<TFetchedCards | null>(null);
-  const [isOpened, setIsOpened] = useState(false);
+  const [isLoading] = useState(false);
+  const [detail, setDetail] = useState<TFetchedCards | null>(card);
+  const [isOpened, setIsOpened] = useState(isCardOpened);
 
   const handleClose = () => {
     setIsOpened(false);
@@ -26,22 +26,20 @@ function Card() {
   };
 
   useEffect(() => {
-    setIsLoading(true);
-    setIsOpened(true);
-    const fetchData = async (param: string) => {
-      try {
-        const result: TFetchedCards = await fetchItems(param);
-        setIsLoading(false);
-        setDetail(result);
-      } catch (error) {
-        setIsLoading(false);
-        navigate('*');
-      }
-    };
     if (id) {
-      fetchData(`${id}?page=${page}`);
+      setDetail(card);
+      setIsOpened(true);
     }
-  }, [id]);
+  }, [id, card]);
+
+  useEffect(() => {
+    setDetail(card);
+    setIsOpened(isCardOpened);
+  }, [card, isCardOpened]);
+
+  useEffect(() => {
+    setIsOpened(false);
+  }, [page]);
 
   return isLoading ? (
     <Loader />
@@ -51,14 +49,14 @@ function Card() {
         <div className="cards__card card" data-testid="person-card">
           <div className="card__content card-content">
             <div className="card-content__image">
-              <img src={detail?.image} alt="" role='img'/>
+              <img src={detail?.image} alt="" role="img" />
             </div>
             <div className="card-content__name">{detail?.name}</div>
             <div className="card-content__gender">{detail?.gender}</div>
             <div className="card-content__species">{detail?.species}</div>
             <div className="card-content__species">{detail?.status}</div>
           </div>
-          <div className="card-content__btn" onClick={handleClose} role="close-card-btn">
+          <div className="card-content__btn" onClick={handleClose} role="button">
             Close
           </div>
         </div>

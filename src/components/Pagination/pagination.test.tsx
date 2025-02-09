@@ -11,11 +11,9 @@ vi.mock('react-router-dom', () => ({
 
 describe('Pagination Component', () => {
   const mockedSetSearchParams = vi.fn();
-  const mockedOnTogglePage = vi.fn();
   const defaultProps = {
     pages: 5,
     isNewSearch: false,
-    onTogglePage: mockedOnTogglePage,
     setSearchParams: mockedSetSearchParams,
   };
   beforeEach(() => {
@@ -29,11 +27,8 @@ describe('Pagination Component', () => {
 
   test('should update URL query parameter when page changes', () => {
     render(<Pagination {...defaultProps} />);
-
     const nextBtn = screen.getByRole('next');
     fireEvent.click(nextBtn);
-
     expect(mockedSetSearchParams).toHaveBeenCalledWith({ page: '2' });
-    expect(mockedOnTogglePage).toHaveBeenCalled();
   });
 });

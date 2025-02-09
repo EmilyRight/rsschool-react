@@ -48,3 +48,8 @@ export type Card = {
   gender: string;
   image: string;
 };
+
+export type OutletContextType = {
+  card: TFetchedCards | null;
+  isCardOpened: boolean;
+};
