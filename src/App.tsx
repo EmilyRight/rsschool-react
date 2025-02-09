@@ -11,14 +11,14 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route
-          path={`${MAIN_PAGE_PATH}/`}
+          path={`${MAIN_PAGE_PATH}`}
           element={
             <ErrorBoundary>
               <MainPage />
             </ErrorBoundary>
           }
         >
-          <Route path={`${MAIN_PAGE_PATH}/:id`} element={<Card />} />
+          <Route path={`:id`} element={<Card />} />
         </Route>
         <Route path="*" element={<ErrorPage />} />
       </Routes>

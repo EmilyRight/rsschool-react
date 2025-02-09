@@ -2,109 +2,88 @@ import { useEffect, useState } from 'react';
 import './main-page.scss';
 import SearchForm from '../components/SearchForm/SearchForm';
 import List from '../components/ListBlock/ListBlock';
-import { TFetchedCardResults } from '../types/types';
+import { TFetchedCardResults, TFetchedCards } from '../types/types';
 import Loader from '../components/Loader/Loader';
 import { fetchItems } from '../api/api';
 import Pagination from '../components/Pagination/Pagination.tsx';
-import { Outlet, useSearchParams } from 'react-router-dom';
+import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import useLocalStorage from '../hooks/localStorage.tsx';
 
-type TMainPageState = {
-  cardsList: TFetchedCardResults[] | null;
-  pages: number;
-  hasError: boolean;
-  isLoading: boolean;
-  isSingleCardOpened: boolean;
-};
-
 function MainPage() {
-  const [state, setState] = useState<TMainPageState>({
-    cardsList: [],
-    pages: 0,
-    hasError: false,
-    isLoading: false,
-    isSingleCardOpened: false,
-  });
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [storedValue] = useLocalStorage<string>('person');
+  const navigate = useNavigate();
 
-  if (state.hasError) {
+  const [cardsList, setCardList] = useState<TFetchedCards[] | []>([]);
+  const [pages, setPages] = useState(0);
+  const [error, setError] = useState(false);
+  const [isNewSearch, setIsNewSearch] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isNotFound, setIsNotfound] = useState(false);
+  const [storedValue, setStoredValue] = useLocalStorage<string>('person');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = searchParams.get('page') || '1';
+  if (error) {
     throw new Error('test error');
   }
 
   const throwErrorFunction = () => {
-    setState(prevState => ({ ...prevState, hasError: true }));
+    setError(true);
   };
 
-  const toggleSingleCard = () => {
-    setState(prevState => ({ ...prevState, isSingleCardOpened: !prevState.isSingleCardOpened }));
+  const handleCardClick = (id: number) => {
+    navigate(`${id}?page=${page}`);
   };
 
-  const handleFetch = async (param: string | undefined) => {
-    setState(prevState => ({ ...prevState, isLoading: true }));
+  const handleFetch = async (param: string | undefined, person?: string) => {
+    setIsLoading(true);
 
     try {
-      const result = await fetchItems(param);
-      console.log('handleFetch', param);
-
-      let data: TFetchedCardResults[];
-      let pagesNum: number;
-      if (Number(param)) {
-        data = [result];
-        pagesNum = 0;
-        setState(prevState => ({
-          ...prevState,
-          cardsList: data,
-          isLoading: false,
-          pages: pagesNum,
-        }));
-      } else {
-        data = result.results;
-        pagesNum = result.info.pages;
-        setState(prevState => ({
-          ...prevState,
-          cardsList: data,
-          isLoading: false,
-          pages: pagesNum,
-        }));
+      const results: TFetchedCardResults = await fetchItems(param);
+      if (param) {
+        const data = results.results;
+        const { pages } = results.info;
+        setCardList(data);
+        setPages(pages);
+        setIsLoading(false);
+        setIsNotfound(false);
+        if (person) setStoredValue(person);
       }
     } catch (error) {
-      setState(prevState => ({ ...prevState, hasError: true, isLoading: false }));
+      setIsNotfound(true);
+      setIsLoading(false);
     }
   };
 
   const handleFetchPage = (page: string) => {
-    const pageParam = `?page=${page}`;
+    const pageParam =
+      storedValue && storedValue !== '' ? `?name=${storedValue}&page=${page}` : `?page=${page}`;
+
     handleFetch(pageParam);
   };
 
   const handleSubmit = (query?: string | null) => {
-    setState(prevState => ({ ...prevState, isSingleCardOpened: false }));
-    const userQuery = query?.trim().replace(/\s/, '');
-
-    if (!userQuery) {
+    setIsNewSearch(true);
+    const userQuery = query?.trim().replace(/\s/, '').toLowerCase();
+    if (userQuery && userQuery !== '') {
+      handleFetch(`?name=${userQuery}`, userQuery);
+    } else {
       const page = searchParams.get('page') || '1';
-      handleFetchPage(page);
-      return;
+      handleFetch(`?page=${page}`);
     }
-
-    handleFetch(userQuery);
   };
 
   useEffect(() => {
     const fetchInitialData = async () => {
+      const page = searchParams.get('page') || '1';
+
       if (storedValue && storedValue !== '') {
-        await handleFetch(storedValue);
-        console.log('render storedValue');
+        await handleFetch(`?name=${storedValue}&page=${page}`);
       } else {
-        const page = searchParams.get('page') || '1';
-        handleFetchPage(page);
-        console.log('render page');
+        await handleFetch(`?page=${page}`);
       }
     };
 
     fetchInitialData();
-  }, [storedValue, searchParams]);
+  }, [searchParams]);
 
   return (
     <main className="page__main main">
@@ -116,22 +95,22 @@ function MainPage() {
       </div>
       <div className="main__content cards">
         <div className="cards__list">
-          {state.isLoading ? (
+          {isLoading && !isNotFound ? (
             <Loader />
+          ) : isNotFound && !isLoading ? (
+            <div className="empty"> There's nothing here </div>
           ) : (
-            <List cards={state.cardsList} openCard={toggleSingleCard} />
+            <List cards={cardsList} openCard={handleCardClick} />
           )}
         </div>
-        {state.isSingleCardOpened && <Outlet context={{ toggleSingleCard }} />}
+        <Outlet context={{ handleCardClick }} />
       </div>
-      {state.pages !== 0 && (
+      {pages !== 0 && !isNotFound && (
         <Pagination
-          pages={state.pages}
-          onTogglePage={() => {
-            const page = searchParams.get('page') || '1';
-            handleFetchPage(page);
-          }}
+          pages={pages}
+          onTogglePage={handleFetchPage}
           setSearchParams={setSearchParams}
+          isNewSearch={isNewSearch}
         />
       )}
     </main>

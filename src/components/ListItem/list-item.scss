@@ -1,15 +1,19 @@
 .item {
-  border: 2px solid rgba(99, 100, 84, 0.288);
+  border-radius: 20px;
   padding: 1.5rem;
   max-width: calc(100% / 2 - 1rem);
   background-color: #fff;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
+  cursor: pointer;
   .item__image {
     max-width: 100%;
     margin-bottom: 1rem;
+    border-radius: 10px;
+    overflow: hidden;
     img {
       max-width: 100%;
       display: block;
@@ -17,9 +21,17 @@
   }
   .item__name {
     font-size: 1.8rem;
+    font-weight: 700;
+    color: #6c0360;
+    text-align: center;
   }
   .item__gender {
+    font-size: 1.5rem;
+    text-align: center;
   }
   .item__species {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
   }
 }

@@ -1,1 +1,1 @@
-export const MAIN_PAGE_PATH = '/rsschool-react/public';
+export const MAIN_PAGE_PATH = '/';

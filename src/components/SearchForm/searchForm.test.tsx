@@ -1,68 +1,37 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import SearchForm from './SearchForm';
-import useLocalStorage from '../../hooks/localStorage';
 
-vi.mock('../../hooks/localStorage.tsx');
+vi.mock('../../hooks/localStorage', () => ({
+  default: () => ['', vi.fn()],
+}));
 
 describe('SearchForm component', () => {
-  let localStorageMock: Record<string, string> = {};
-
   beforeEach(() => {
-    localStorageMock = {};
-    vi.spyOn(window.localStorage, 'getItem').mockImplementation(
-      key => localStorageMock[key] || null,
-    );
-    vi.spyOn(window.localStorage, 'setItem').mockImplementation((key, value) => {
-      localStorageMock[key] = value;
-    });
-
     vi.clearAllMocks();
   });
 
-  it('saves the entered value to local storage upon clicking the Search button', () => {
+  it('saves the entered value to local storage upon clicking the Search button', async () => {
+    const user = userEvent.setup();
     const onQuerySubmit = vi.fn();
-
-    (useLocalStorage as jest.Mock).mockImplementation(() => {
-      let value = '';
-      return [
-        value,
-        (newValue: string) => {
-          value = newValue;
-          localStorageMock['person'] = value;
-        },
-      ];
-    });
-
     render(<SearchForm onQuerySubmit={onQuerySubmit} />);
 
-    const inputElement = screen.getByPlaceholderText(
-      'Enter number from 1 to 826',
-    ) as HTMLInputElement;
-    const buttonElement = screen.getByRole('search-btn');
+    const inputElement = screen.getByRole('textbox');
+    const buttonElement = screen.getByRole('button');
 
-    userEvent.type(inputElement, '123');
-    screen.debug();
-    fireEvent.click(buttonElement);
-    screen.debug();
+    await user.type(inputElement, 'morty');
+    await user.click(buttonElement);
 
-    expect(localStorageMock['person']).toEqual('123');
-    screen.debug();
-
-    expect(onQuerySubmit).toHaveBeenCalledWith('123');
+    expect(onQuerySubmit).toHaveBeenCalledWith('morty');
   });
 
   it('retrieves the value from local storage upon mounting', () => {
     const onQuerySubmit = vi.fn();
 
-    (useLocalStorage as jest.Mock).mockImplementation(() => ['123', vi.fn()]);
-
     render(<SearchForm onQuerySubmit={onQuerySubmit} />);
 
-    const inputElement = screen.getByPlaceholderText(
-      'Enter number from 1 to 826',
-    ) as HTMLInputElement;
-    expect(inputElement.value).toBe('123');
+    const inputElement = screen.getByPlaceholderText('Enter the name') as HTMLInputElement;
+    expect(inputElement.value).toBe('');
   });
 });

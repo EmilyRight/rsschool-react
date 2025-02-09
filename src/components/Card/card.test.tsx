@@ -1,104 +1,86 @@
-import { render, screen } from '@testing-library/react';
-import { MemoryRouter, Route, Routes} from 'react-router-dom';
-import { afterEach, describe, it, expect, vi } from 'vitest';
-import Card from './Card';
-import MainPage from '../../pages/MainPage.tsx';
-import { fetchItems } from '../../api/api.ts';
+import { render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { describe, it, expect, vi } from 'vitest';
+import Card from './Card.tsx';
 import { MAIN_PAGE_PATH } from '../../constants/constants.ts';
+import userEvent from '@testing-library/user-event';
 
+const mockFetchItems = vi.fn();
+vi.mock('../../api/api', () => ({
+  fetchItems: () => mockFetchItems(),
+}));
 
-vi.mock('../../api/api.ts', () => {
-  const originalModule = vi.importActual<typeof import('../../api/api.ts')>('../../api/api.ts');
-  return {
-    ...originalModule,
-    fetchItems: vi.fn(),
-  };
-});
+const mockCharacterData = {
+  id: 1,
+  image: 'http://example.com/image.jpg',
+  name: 'Test Name',
+  gender: 'Test Gender',
+  species: 'Test Species',
+  status: 'Test Status',
+};
 
-vi.mock('../../ContextProvider/ContextProvider.tsx', async () => {
-  const actual = await vi.importActual<typeof import('../../ContextProvider/ContextProvider.tsx')>(
-    '../../ContextProvider/ContextProvider.tsx',
-  );
-  return {
-    ...actual,
-    useAppContext: vi.fn(),
-  };
-});
-
-type FetchItemsMock = jest.MockedFunction<typeof fetchItems>;
-describe('Card Component', () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
+describe('Card component', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it('displays loading indicator while fetching data', () => {
-    (fetchItems as FetchItemsMock).mockReturnValue(new Promise(() => {}));
-
-    render(
-      <MemoryRouter initialEntries={[`${MAIN_PAGE_PATH}/:id`]}>
+  const renderComponent = () => {
+    return render(
+      <MemoryRouter initialEntries={[`${MAIN_PAGE_PATH}1?page=1`]}>
         <Routes>
-          <Route path={`${MAIN_PAGE_PATH}`} element={<MainPage />}>
-            <Route path={`${MAIN_PAGE_PATH}/:id`} element={<Card />} />
-          </Route>
+          <Route path={`${MAIN_PAGE_PATH}:id`} element={<Card />} />
         </Routes>
       </MemoryRouter>,
     );
+  };
+
+  it('shows loading indicator while fetching data', () => {
+    mockFetchItems.mockImplementation(() => new Promise(() => {}));
+    renderComponent();
 
     expect(screen.getByRole('loader')).toBeInTheDocument();
   });
 
-  // it('displays detailed card data correctly', async () => {
-  //   const mockData = {
-  //     image: 'http://example.com/image.jpg',
-  //     name: 'Test Name',
-  //     gender: 'Test Gender',
-  //     species: 'Test Species',
-  //     status: 'Test Status',
-  //   };
+  it('displays character details after loading', async () => {
+    mockFetchItems.mockResolvedValue(mockCharacterData);
+    renderComponent();
 
-  //   (fetchItems as FetchItemsMock).mockResolvedValue(mockData);
+    await waitFor(() => {
+      expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
+    });
 
-  //   render(
-  //     <MemoryRouter initialEntries={[`${MAIN_PAGE_PATH}/:id`]}>
-  //       <Routes>
-  //         <Route path={`${MAIN_PAGE_PATH}`} element={<MainPage />}>
-  //           <Route path={`${MAIN_PAGE_PATH}/:id`} element={<Card />} />
-  //         </Route>
-  //       </Routes>
-  //     </MemoryRouter>,
-  //   );
+    expect(screen.getByText(mockCharacterData.name)).toBeInTheDocument();
+    expect(screen.getByText(mockCharacterData.gender)).toBeInTheDocument();
+    expect(screen.getByText(mockCharacterData.species)).toBeInTheDocument();
+    expect(screen.getByText(mockCharacterData.status)).toBeInTheDocument();
 
-  //   expect(await screen.findByText(/test name/i)).toBeInTheDocument();
-  //   expect(await screen.findByText(/test name/i)).toBeInTheDocument();
-  //   expect(await screen.findByText(/Test Gender/i)).toBeInTheDocument();
-  //   expect(await screen.findByText(/Test Species/i)).toBeInTheDocument();
-  //   expect(await screen.findByText(/Test Status/i)).toBeInTheDocument();
-  // });
+    const image = screen.getByRole('img');
+    expect(image).toHaveAttribute('src', mockCharacterData.image);
+  });
 
-  // it('hides component when close button is clicked', async () => {
-  //   const mockedUseAppContext = useAppContext as jest.MockedFunction<() => ContextValue>;
-  //   mockedUseAppContext.mockReturnValue({
-  //     toggleSingleCard: mockToggleSingleCard,
-  //   });
+  it('closes the card when clicking the close button', async () => {
+    const user = userEvent.setup();
+    mockFetchItems.mockResolvedValue(mockCharacterData);
+    renderComponent();
 
-  //   render(
-  //     <MemoryRouter initialEntries={[`${MAIN_PAGE_PATH}/1`]}>
-  //       <AppProvider>
-  //         <Routes>
-  //           <Route path={`${MAIN_PAGE_PATH}`} element={<MainPage />}>
-  //             <Route path={`${MAIN_PAGE_PATH}/:id`} element={<Card />} />
-  //           </Route>
-  //         </Routes>
-  //       </AppProvider>
-  //       ,
-  //     </MemoryRouter>,
-  //   );
+    await waitFor(() => {
+      expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
+    });
 
-  //   const closeButton = await screen.findByRole('close-card-btn');
-  //   expect(closeButton).toBeInTheDocument();
-  //   fireEvent.click(closeButton);
-  //   screen.debug();
+    const closeButton = screen.getByRole('close-card-btn');
+    await user.click(closeButton);
 
-  //   expect(mockToggleSingleCard).toHaveBeenCalled();
-  // });
+    expect(screen.queryByTestId('person-card')).not.toBeInTheDocument();
+  });
+
+  it('navigates to error page when fetch fails', async () => {
+    mockFetchItems.mockRejectedValue(new Error('Fetch failed'));
+    const { container } = renderComponent();
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
+    });
+
+    expect(container.innerHTML).toBe('');
+  });
 });

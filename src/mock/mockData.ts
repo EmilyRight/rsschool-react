@@ -647,7 +647,7 @@ const mockData = {
 
 const testCards = [
   {
-    id: 2,
+    id: 1,
     name: 'Morty Smith',
     status: 'Alive',
     species: 'Human',
@@ -667,7 +667,7 @@ const testCards = [
     created: '2017-11-04T18:50:21.651Z',
   },
   {
-    id: 3,
+    id: 2,
     name: 'Summer Smith',
     status: 'Alive',
     species: 'Human',
@@ -687,7 +687,7 @@ const testCards = [
     created: '2017-11-04T19:09:56.428Z',
   },
   {
-    id: 4,
+    id: 3,
     name: 'Beth Smith',
     status: 'Alive',
     species: 'Human',

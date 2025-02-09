@@ -1,11 +1,10 @@
 import '@testing-library/jest-dom';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { MemoryRouter, BrowserRouter as Router } from 'react-router-dom';
 
 import { describe, it, expect, vi } from 'vitest';
 import PersonCard from '../ListItem/ListItem';
 
-// Тестовые данные для компонента
 const cardData = {
   id: 1,
   name: 'Rick Sanchez',
@@ -15,7 +14,14 @@ const cardData = {
   openCard: vi.fn(),
 };
 
+vi.mock('../../api/api', () => ({
+  fetchItems: vi.fn(),
+}));
+
 describe('PersonCard Component', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
   it('renders the card data', () => {
     render(
       <Router>
@@ -32,29 +38,27 @@ describe('PersonCard Component', () => {
     );
   });
 
-  it('opens detailed card component on click', () => {
+  it('opens detailed card component on click', async () => {
     render(
       <Router>
         <PersonCard {...cardData} />
       </Router>,
     );
-    const linkElement = screen.getByRole('link');
+    const linkElement = screen.getByRole('card');
     fireEvent.click(linkElement);
     expect(cardData.openCard).toHaveBeenCalled();
   });
 
-  // it('triggers an additional API call on click to fetch detailed information', async () => {
-  //   const fetchDetailedInfo = vi.fn();
+  it('triggers openCard function on click with correct id', async () => {
+    render(
+      <MemoryRouter>
+        <PersonCard {...cardData} />
+      </MemoryRouter>,
+    );
 
-  //   render(
-  //     <Router>
-  //       <PersonCard {...cardData} />
-  //     </Router>,
-  //   );
+    const card = screen.getByRole('card');
+    await fireEvent.click(card);
 
-  //   const cardElement = screen.getByRole('card');
-  //   fireEvent.click(cardElement);
-
-  //   expect(fetchDetailedInfo).toHaveBeenCalled();
-  // });
+    expect(cardData.openCard).toHaveBeenCalledWith(cardData.id);
+  });
 });

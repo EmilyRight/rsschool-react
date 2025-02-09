@@ -1,4 +1,11 @@
-export type TFetchedCardResults = {
+export type TFetchedCardInfo = {
+  count: number;
+  pages: number;
+  next: string;
+  prev: null;
+};
+
+export type TFetchedCards = {
   id: number;
   name: string;
   status: string;
@@ -21,14 +28,9 @@ export type TFetchedCardResults = {
   created: string;
 };
 
-export type TFetchedCard = {
-  info: {
-    count: number;
-    pages: number;
-    next: string;
-    prev: null;
-  };
-  results: TFetchedCardResults[];
+export type TFetchedCardResults = {
+  info: TFetchedCardInfo;
+  results: TFetchedCards[];
 };
 
 export type TCardProps = {

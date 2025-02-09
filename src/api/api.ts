@@ -1,11 +1,10 @@
-const HOST = 'https://rickandmortyapi.com/api/character/';
+const HOST = 'https://rickandmortyapi.com/api/character';
 
-export const fetchItems = async (searchTerm: string = '') => {
+export const fetchItems = async <T>(searchTerm: string = ''): Promise<T> => {
   const response = await fetch(`${HOST}/${searchTerm}`, { method: 'GET' });
-  console.log('fetchItems', `${HOST}/${searchTerm}`);
-
   if (!response.ok) {
     throw new Error('Failed to fetch');
   }
-  return response.json();
+
+  return response.json() as T;
 };

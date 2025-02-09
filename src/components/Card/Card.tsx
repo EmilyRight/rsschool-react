@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import './card.scss';
-import { TFetchedCardResults } from '../../types/types';
-import { useNavigate, useOutletContext, useParams } from 'react-router';
+import { TFetchedCards } from '../../types/types';
+import { useNavigate, useParams } from 'react-router';
 import { fetchItems } from '../../api/api';
 import Loader from '../Loader/Loader';
 import { MAIN_PAGE_PATH } from '../../constants/constants';
@@ -11,72 +11,59 @@ type TCardParams = {
   id: string;
 };
 
-type TCardState = {
-  isLoading: boolean;
-  detail: TFetchedCardResults | null;
-};
-
-interface OutletContext {
-  toggleSingleCard: () => void;
-}
-
 function Card() {
-  const { id } = useParams<TCardParams>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { id } = useParams<TCardParams>();
   const page = searchParams.get('page') || '1';
-  const [state, setState] = useState<TCardState>({
-    isLoading: false,
-    detail: null,
-  });
-  const { toggleSingleCard } = useOutletContext<OutletContext>();
+  const [isLoading, setIsLoading] = useState(false);
+  const [detail, setDetail] = useState<TFetchedCards | null>(null);
+  const [isOpened, setIsOpened] = useState(false);
 
   const handleClose = () => {
-    toggleSingleCard();
-    navigate(`${MAIN_PAGE_PATH}/?page=${page}`);
+    setIsOpened(false);
+    navigate(`${MAIN_PAGE_PATH}?page=${page}`);
   };
 
   useEffect(() => {
-    setState({ ...state, isLoading: true });
+    setIsLoading(true);
+    setIsOpened(true);
     const fetchData = async (param: string) => {
       try {
-        const result: TFetchedCardResults = await fetchItems(param);
-        setState({ ...state, isLoading: false, detail: result });
+        const result: TFetchedCards = await fetchItems(param);
+        setIsLoading(false);
+        setDetail(result);
       } catch (error) {
-        setState({ ...state, isLoading: false });
+        setIsLoading(false);
         navigate('*');
-        throw new Error();
       }
     };
     if (id) {
-      fetchData(id);
+      fetchData(`${id}?page=${page}`);
     }
   }, [id]);
 
-  return state.isLoading ? (
+  return isLoading ? (
     <Loader />
   ) : (
-    <div className="cards__card card">
-      <div className="card__content card-content">
-        <div className="card-content__image">
-          <img src={state.detail?.image} alt="" />
+    isOpened && (
+      <div className="card-modal">
+        <div className="cards__card card" data-testid="person-card">
+          <div className="card__content card-content">
+            <div className="card-content__image">
+              <img src={detail?.image} alt="" role='img'/>
+            </div>
+            <div className="card-content__name">{detail?.name}</div>
+            <div className="card-content__gender">{detail?.gender}</div>
+            <div className="card-content__species">{detail?.species}</div>
+            <div className="card-content__species">{detail?.status}</div>
+          </div>
+          <div className="card-content__btn" onClick={handleClose} role="close-card-btn">
+            Close
+          </div>
         </div>
-        <div className="card-content__name">{state.detail?.name}</div>
-        <div className="card-content__gender">{state.detail?.gender}</div>
-        <div className="card-content__species">{state.detail?.species}</div>
-        <div className="card-content__species">{state.detail?.status}</div>
       </div>
-      <div
-        className="card-content__btn"
-        onClick={() => {
-          console.log('Button clicked');
-          handleClose();
-        }}
-        role="close-card-btn"
-      >
-        Close
-      </div>
-    </div>
+    )
   );
 }
 
