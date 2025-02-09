@@ -23,6 +23,7 @@ function SearchForm({ onQuerySubmit }: TSearchFormProps) {
       setStoredValue(query.toLowerCase());
       onQuerySubmit(query);
     } else {
+      setStoredValue('');
       onQuerySubmit('');
     }
   };

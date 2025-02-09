@@ -2,6 +2,7 @@ import React, { createContext, useContext, ReactNode } from 'react';
 
 interface ContextValue {
   toggleSingleCard: () => void;
+  isCardOpened: boolean;
 }
 
 const AppContext = createContext<ContextValue | undefined>(undefined);
@@ -22,6 +23,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const toggleSingleCard = () => {
     console.log('Card toggled');
   };
-
-  return <AppContext.Provider value={{ toggleSingleCard }}>{children}</AppContext.Provider>;
+  const isCardOpened = false;
+  return (
+    <AppContext.Provider value={{ toggleSingleCard, isCardOpened }}>{children}</AppContext.Provider>
+  );
 };
