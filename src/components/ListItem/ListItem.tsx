@@ -8,10 +8,8 @@ import { addDetailedCard } from '../../redux/slices/cardsSlice';
 import Loader from '../Loader/Loader';
 import { useTheme } from '../../ContextProvider/ContextProvider';
 
-
-
 export type TDetailedCardProps = {
-  cardId: number;
+  cardId: number | undefined;
 };
 
 function PersonCard(props: TDetailedCardProps) {
@@ -23,17 +21,20 @@ function PersonCard(props: TDetailedCardProps) {
   const { data, isLoading } = useGetPersonByIdQuery(String(cardId)) || {};
   const { name, gender, species, image } = data || {};
 
-  const handleFavorites = (cardId: number) => {
-    if (favorites.some(fav => fav.id === cardId)) {
-      dispatch(removeFavorite(cardId));
-      setChecked(false);
-    } else {
-      if (data) {
-        dispatch(addFavorite(data));
-        setChecked(true);
+  const handleFavorites = (cardId: number | undefined) => {
+    if (cardId) {
+      if (favorites.some(fav => fav.id === cardId)) {
+        dispatch(removeFavorite(cardId));
+        setChecked(false);
+      } else {
+        if (data) {
+          dispatch(addFavorite(data));
+          setChecked(true);
+        }
       }
     }
   };
+
   const showDetails = () => {
     if (data) {
       dispatch(addDetailedCard(data));
@@ -43,7 +44,6 @@ function PersonCard(props: TDetailedCardProps) {
   useEffect(() => {
     setChecked(favorites.some(fav => fav.id === cardId));
   }, [favorites, checked]);
-
 
   return isLoading ? (
     <Loader />

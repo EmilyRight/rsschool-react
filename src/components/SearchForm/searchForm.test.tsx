@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
-import { render, fireEvent, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import SearchForm from './SearchForm';
 import { ThemeProvider } from '../../ContextProvider/ContextProvider';
@@ -12,7 +13,6 @@ const Wrapper = ({ children }: { children: ReactNode }) => (
 );
 
 describe('SearchForm', () => {
-
   let mockLocalStorage: {
     getItem: ReturnType<typeof vi.fn>;
     setItem: ReturnType<typeof vi.fn>;
@@ -41,15 +41,14 @@ describe('SearchForm', () => {
   test('saves entered value to local storage when Search button is clicked', async () => {
     render(<SearchForm />, { wrapper: Wrapper });
 
-    const input = screen.getByPlaceholderText('Enter number from 1 to 826') as HTMLInputElement;
-    const button = screen.getByText(/Search/i);
+    const user = userEvent.setup();
+    const inputElement = screen.getByRole('textbox');
+    const buttonElement = screen.getByRole('search');
 
-    fireEvent.change(input, { target: { value: '123' } });
-    fireEvent.click(button);
+    await user.type(inputElement, 'morty');
+    await user.click(buttonElement);
 
-    await waitFor(() => {
-      expect(localStorage.setItem).toHaveBeenCalledWith('person', JSON.stringify('123'));
-    });
+    expect(mockLocalStorage.setItem).toHaveBeenCalledWith('person', JSON.stringify('morty'));
   });
 
   test('retrieves value from local storage upon mounting', async () => {
@@ -57,9 +56,7 @@ describe('SearchForm', () => {
 
     render(<SearchForm />, { wrapper: Wrapper });
 
-    const input = (await screen.findByPlaceholderText(
-      'Enter number from 1 to 826',
-    )) as HTMLInputElement;
+    const input = (await screen.findByPlaceholderText('Enter the name')) as HTMLInputElement;
     expect(input.value).toBe('456');
   });
 });

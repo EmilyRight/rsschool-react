@@ -3,10 +3,8 @@ import PersonCard from '../ListItem/ListItem';
 import { TCard } from '../../types/types';
 import { useTheme } from '../../ContextProvider/ContextProvider';
 
-
-
 type TListProps = {
-  cardsList: TCard[] | undefined;
+  cardsList: (TCard | undefined)[] | undefined;
 };
 
 function List(props: TListProps) {

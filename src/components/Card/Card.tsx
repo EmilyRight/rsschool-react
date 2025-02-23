@@ -1,11 +1,10 @@
 import './card.scss';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate } from 'react-router';
 import { MAIN_PAGE_PATH } from '../../constants/constants';
 import { useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { removeDetailedCard } from '../../redux/slices/cardsSlice';
-import { useEffect } from 'react';
 import { useTheme } from '../../ContextProvider/ContextProvider';
 
 function Card() {
@@ -13,18 +12,25 @@ function Card() {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const [searchParams] = useSearchParams();
-  const page = searchParams.get('page');
+  console.log(window.location.href);
 
+  const page = searchParams.get('page');
+  const queryName = searchParams.get('name');
   const { detailedCard } = useSelector((state: RootState) => state.detailedCard);
-  const { name, image, gender, species, status } = detailedCard;
-  const { id } = useParams();
-  const handleClose = async () => {
-    const newUrl = `${MAIN_PAGE_PATH}/${id ? id : ''}${page ? `?page=${page}` : ''}`;
-    navigate(newUrl);
-    dispatch(removeDetailedCard());
+
+  const getRedirectUrl = () => {
+    const params = new URLSearchParams();
+
+    if (queryName) params.set('name', queryName);
+    if (page) params.set('page', page);
+
+    return `${MAIN_PAGE_PATH}${params.toString() ? `?${params.toString()}` : ''}`;
   };
 
-  useEffect(() => {}, [detailedCard]);
+  const handleClose = async () => {
+    navigate(getRedirectUrl());
+    dispatch(removeDetailedCard());
+  };
 
   return (
     detailedCard && (
@@ -32,12 +38,12 @@ function Card() {
         <div className={`cards__card card card_${theme}`} role="card">
           <div className="card__content card-content">
             <div className="card-content__image">
-              <img src={image} alt="" />
+              <img src={detailedCard.image} alt="" />
             </div>
-            <div className="card-content__name">{name}</div>
-            <div className="card-content__gender">{gender}</div>
-            <div className="card-content__species">{species}</div>
-            <div className="card-content__species">{status}</div>
+            <div className="card-content__name">{detailedCard.name}</div>
+            <div className="card-content__gender">{detailedCard.gender}</div>
+            <div className="card-content__species">{detailedCard.species}</div>
+            <div className="card-content__species">{detailedCard.status}</div>
           </div>
           <div
             className="card-content__btn"

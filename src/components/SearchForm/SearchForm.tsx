@@ -1,8 +1,9 @@
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import { ChangeEvent, FormEvent, useState } from 'react';
 import './search-form.scss';
 import useLocalStorage from '../../hooks/localStorage';
 import { useNavigate } from 'react-router';
 import Button from '../Button/Button';
+import { MAIN_PAGE_PATH } from '../../constants/constants';
 
 type TSearchFormState = {
   query: string | null;
@@ -10,39 +11,45 @@ type TSearchFormState = {
 
 function SearchForm() {
   const [storedValue, setValue] = useLocalStorage<string | null>('person');
-  const navigate = useNavigate();
   const [state, setState] = useState<TSearchFormState>({
     query: storedValue,
   });
+  const navigate = useNavigate();
 
   const handleInput = (event: ChangeEvent<HTMLInputElement>) => {
-    const element = event.target as HTMLInputElement;
-    const value = element.value;
-    setState({ query: value });
+    setState({ query: event.target.value });
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const { query } = state;
-    setValue(query);
-    setState({ query: '' });
-    navigate(`${query}`);
-  };
-  useEffect(() => {
-    if (storedValue) {
-      navigate(`${storedValue}`);
+
+    if (!query || query.trim() === '') {
+      navigate(`${MAIN_PAGE_PATH}/?page=1`);
+      return;
     }
-  }, []);
+
+    const trimmedQuery = query.trim().replace(/\s+/g, '').toLowerCase();
+    setValue(trimmedQuery);
+    setState({ query: trimmedQuery });
+
+    if (!isNaN(Number(trimmedQuery))) {
+      navigate(`${MAIN_PAGE_PATH}/${trimmedQuery}`);
+    } else {
+      navigate(`${MAIN_PAGE_PATH}?name=${trimmedQuery}`);
+    }
+  };
+
   return (
     <>
       <form className="input-block" onSubmit={handleSubmit}>
         <input
           type="text"
           className="input-block__input"
-          placeholder="Enter number from 1 to 826"
+          placeholder="Enter the name"
           value={state.query || ''}
           name="query"
-          onChange={handleInput}
+          onInput={handleInput}
         />
         <Button className="input-block__button" type="submit" text="Search" role="search" />
       </form>

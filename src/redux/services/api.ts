@@ -3,6 +3,7 @@ import type { TCard, TCardResponse } from '../../types/types';
 import { HOST } from '../../constants/constants';
 export interface GetAllPersonsQueryParams {
   currentPage?: string;
+  name?:string;
 }
 
 export const api = createApi({
@@ -15,11 +16,17 @@ export const api = createApi({
     getPersonById: builder.query<TCard, string>({
       query: id => `character/${id}`,
     }),
+
+    getPersonByName: builder.query<TCardResponse, GetAllPersonsQueryParams>({
+      query:  ({ name, currentPage } = {})   => `character/?name=${name}&page=${currentPage}`,
+    }),
   }),
 });
 
 type UseGetAllPersonsQuery = typeof api.endpoints.getAllPersons.useQuery;
 type UseGetPersonByIdQuery = typeof api.endpoints.getPersonById.useQuery;
+type useGetPersonsByName = typeof api.endpoints.getPersonByName.useQuery;
 
 export const useGetAllPersonsQuery: UseGetAllPersonsQuery = api.endpoints.getAllPersons.useQuery;
 export const useGetPersonByIdQuery: UseGetPersonByIdQuery = api.endpoints.getPersonById.useQuery;
+export const useGetPersonsByName: useGetPersonsByName = api.endpoints.getPersonByName.useQuery;

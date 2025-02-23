@@ -33,13 +33,17 @@ function Pagination() {
     }
   };
 
-  const handleNext = () => {
-    setSearchParams(`?page=${currentPage + 1}`);
-  };
+const handleNext = () => {
+  const params = new URLSearchParams(searchParams); 
+  params.set('page', String(currentPage + 1));
+  setSearchParams(params);
+};
 
-  const handlePrev = () => {
-    setSearchParams(`?page=${currentPage - 1}`);
-  };
+const handlePrev = () => {
+  const params = new URLSearchParams(searchParams);
+  params.set('page', String(currentPage - 1));
+  setSearchParams(params);
+};
 
   useEffect(() => {
     handleBtns();
